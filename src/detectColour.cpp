@@ -121,24 +121,13 @@ std::tuple<int, int, int> getColour() {
 			colourArray[++consistentCount][0] = normaliseColour(temp[0], max);
 			colourArray[consistentCount][1] = normaliseColour(temp[1], max);
 			colourArray[consistentCount][2] = normaliseColour(temp[2], max);
-			// Serial.println(colourArray[consistentCount][0]);
-			// Serial.println(colourArray[consistentCount][1]);
-			// Serial.println(colourArray[consistentCount][2]);
-			// Serial.print("Colour consistent #");
-			// Serial.println(consistentCount);
 		} else {
 			colourArray[++consistentCount][0] = normaliseColour(temp[0], max);
 			colourArray[consistentCount][1] = normaliseColour(temp[1], max);
 			colourArray[consistentCount][2] = normaliseColour(temp[2], max);
-			// Serial.println(colourArray[consistentCount][0]);
-			// Serial.println(colourArray[consistentCount][1]);
-			// Serial.println(colourArray[consistentCount][2]);
-			// Serial.print("Colour consistent #");
-			// Serial.println(consistentCount);
 			for (int i=0; i<3; i++) {
 				// If the difference is too large, restart
 				if (pow(colourArray[consistentCount][i]-colourArray[consistentCount-1][i], 2) > 300) {
-					// Serial.println("Too big of a difference, restarting colour averaging");
 					colourArray[0][0] = colourArray[consistentCount][0];
 					colourArray[0][1] = colourArray[consistentCount][1];
 					colourArray[0][2] = colourArray[consistentCount][2];
@@ -150,8 +139,6 @@ std::tuple<int, int, int> getColour() {
 
 		delay(350);
 	}
-
-	// Serial.println("Colour found!");
 
 	int r = 0;
 	int g = 0;
