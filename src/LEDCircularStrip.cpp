@@ -1,9 +1,8 @@
-#include <Adafruit_NeoPixel.h>
+#include "LEDCircularStrip.h"
 
 // NeoPixel configuration
-#define PIN 13
 #define NUMPIXELS 24
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 // Reference color (default: white)
 int refR = 255, refG = 255, refB = 255;
@@ -62,12 +61,12 @@ void displayDynamicStandby() {
   }
 }
 
-void setup() {
+void setupLED() {
   pixels.begin(); // Initialize NeoPixel
   setReferenceColor(255, 255, 255); // Set reference color
 }
 
-void loop() {
+void showLED() {
   if (needToCompare) {
     int inputR = 25, inputG = 25, inputB = 25; // Example input color
     int accuracy = calculateSimilarity(inputR, inputG, inputB);
