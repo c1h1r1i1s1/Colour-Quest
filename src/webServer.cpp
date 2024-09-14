@@ -2,24 +2,32 @@
 
 const char* ssid = "Colour Quest";
 const char* password = "123456789";
-WiFiServer server(80);
+// WiFiServer server(80);
+AsyncWebServer server(80);
 
 void setupWebServer() {
 	// Start wifi access point
 	WiFi.softAP(ssid, password);
 	Serial.println("Wi-Fi AP started");
 
-	IPAddress IP = WiFi.softAPIP();
-	Serial.print("AP IP address: ");
-	Serial.println(IP);
+	// Initialize SPIFFS for web page file handling
+	if (!SPIFFS.begin(true)) {
+		Serial.println("An error occurred while mounting SPIFFS");
+		return;
+	}
 
 	// Start web server
-	// server.on("/", handleRoot);
+	// server.begin();
+
+	// Serve static files from SPIFFS
+	server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+
+	// Start the server
 	server.begin();
 	Serial.println("HTTP server started");
 
-	// Start dns resolver
-	if (!MDNS.begin("colorquest")) {
+	// Start dns resolver for website name (colourquest.local)
+	if (!MDNS.begin("colourquest")) {
 		Serial.println("Error starting mDNS");
 		return;
 	}
@@ -30,44 +38,44 @@ void setupWebServer() {
 }
 
 void webListener() {
-	WiFiClient client = server.available();
+	// WiFiClient client = server.available();
 
-	if (client) {
-		Serial.println("New Client Connected");
-		String currentLine = "";
+	// if (client) {
+	// 	Serial.println("New Client Connected");
+	// 	String currentLine = "";
 
-		// Loop while the client's connected
-		while (client.connected()) {
-			if (client.available()) {
-				char c = client.read();
-				Serial.write(c); // Print request to serial monitor
-				currentLine += c;
+	// 	// Loop while the client's connected
+	// 	while (client.connected()) {
+	// 		if (client.available()) {
+	// 			char c = client.read();
+	// 			Serial.write(c); // Print request to serial monitor
+	// 			currentLine += c;
 
-				// If the request ends with a new line, it's the end of the request
-				if (c == '\n') {
-					// Send a response
-					client.println("HTTP/1.1 200 OK");
-					client.println("Content-type:text/html");
-					client.println(); // end headers
+	// 			// If the request ends with a new line, it's the end of the request
+	// 			if (c == '\n') {
+	// 				// Send a response
+	// 				client.println("HTTP/1.1 200 OK");
+	// 				client.println("Content-type:text/html");
+	// 				client.println(); // end headers
 
-					// Web page content (simple HTML)
-					client.println("<!DOCTYPE html><html>");
-					client.println("<head><title>ColorQuest</title></head>");
-					client.println("<body><h1>Welcome to ColorQuest</h1>");
-					client.println("<p>Use this interface to control the device.</p>");
-					client.println("</body></html>");
+	// 				// Web page content (simple HTML)
+	// 				client.println("<!DOCTYPE html><html>");
+	// 				client.println("<head><title>ColorQuest</title></head>");
+	// 				client.println("<body><h1>Welcome to ColorQuest</h1>");
+	// 				client.println("<p>Use this interface to control the device.</p>");
+	// 				client.println("</body></html>");
 
-					// Break out of the loop
-					break;
-				}
-			}
-		}
+	// 				// Break out of the loop
+	// 				break;
+	// 			}
+	// 		}
+	// 	}
 
-		// Give the web browser time to receive the data
-		delay(1);
+	// 	// Give the web browser time to receive the data
+	delay(1);
 
-		// Close the connection
-		client.stop();
-		Serial.println("Client Disconnected");
-	}
+	// 	// Close the connection
+	// 	client.stop();
+	// 	Serial.println("Client Disconnected");
+	// }
 }
