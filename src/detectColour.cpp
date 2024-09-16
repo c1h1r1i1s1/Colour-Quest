@@ -3,7 +3,7 @@
 int colourFrequencyCount = 0; // count the frequency
 int rgbArray[3]; // store the RGB value
 int colourScanIndex = 0; // filter of RGB queue
-float initColorScale[3]; // save the RGB Scale factor
+float initcolourScale[3]; // save the RGB Scale factor
 
 hw_timer_t *timer = NULL;  // Hardware timer
 
@@ -19,7 +19,7 @@ void TSC_Init() {
 }
 
 // Function to tell board which colour to read
-void TSC_FilterColor(int Level01, int Level02) {
+void TSC_Filtercolour(int Level01, int Level02) {
 	if(Level01 != 0)
 		Level01 = HIGH;
 	if(Level02 != 0)
@@ -37,7 +37,7 @@ void IRAM_ATTR TSC_Count() {
 void scanColour(int Level0, int Level1) {
 	colourFrequencyCount = 0;
 	colourScanIndex++;
-	TSC_FilterColor(Level0, Level1);
+	TSC_Filtercolour(Level0, Level1);
 	// Scan diode for 0.1 seconds
 	timerAlarmWrite(timer, 100000, true);
 	timerAlarmEnable(timer);
@@ -89,9 +89,9 @@ void setupColourSensor() {
 
 	delay(1000);
 
-	initColorScale[0] = 255.0 / rgbArray[0]; // R Scale factor
-	initColorScale[1] = 255.0 / rgbArray[1]; // G Scale factor
-	initColorScale[2] = 255.0 / rgbArray[2]; // B Scale factor
+	initcolourScale[0] = 255.0 / rgbArray[0]; // R Scale factor
+	initcolourScale[1] = 255.0 / rgbArray[1]; // G Scale factor
+	initcolourScale[2] = 255.0 / rgbArray[2]; // B Scale factor
 }
 
 int normaliseColour(float value, float max) {
@@ -106,11 +106,11 @@ std::tuple<int, int, int> getColour() {
 	while (consistentCount < 2) {
 		colourScanIndex = 0;
 		float temp[3] = {0, 0, 0};
-		float max = rgbArray[0] * initColorScale[0];
+		float max = rgbArray[0] * initcolourScale[0];
 
 		// Get max value for scaling
 		for (int i = 0; i < 3; i++) {
-			temp[i] = rgbArray[i] * initColorScale[i];
+			temp[i] = rgbArray[i] * initcolourScale[i];
 			if (temp[i] > max) {
 				max = temp[i];
 			}

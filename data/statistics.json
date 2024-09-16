@@ -1,0 +1,10 @@
+{
+	"statistics": {
+		"attempts": 0,
+		"correct": 0,
+		"incorrect": 0,
+		"protanopia": 0,
+		"deuteranopia": 0,
+		"tritanopia": 0
+	}
+}

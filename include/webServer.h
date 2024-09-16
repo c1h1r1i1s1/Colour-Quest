@@ -2,9 +2,9 @@
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
+#include <ArduinoJson.h>
 
-void handleRoot();
+extern String difficulty;
+extern String colourBlindMode;
 
 void setupWebServer();
-
-void webListener();

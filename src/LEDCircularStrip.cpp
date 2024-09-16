@@ -4,20 +4,20 @@
 #define NUMPIXELS 24
 Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-// Reference color (default: white)
+// Reference colour (default: white)
 int refR = 255, refG = 255, refB = 255;
 
-// Flag for color comparison mode
+// Flag for colour comparison mode
 bool needToCompare = true;
 
-// Set reference color
-void setReferenceColor(int r, int g, int b) {
+// Set reference colour
+void setReferencecolour(int r, int g, int b) {
   refR = r;
   refG = g;
   refB = b;
 }
 
-// Calculate similarity percentage between reference and input color
+// Calculate similarity percentage between reference and input colour
 int calculateSimilarity(int r, int g, int b) {
   int diffR = abs(refR - r);
   int diffG = abs(refG - g);
@@ -28,8 +28,8 @@ int calculateSimilarity(int r, int g, int b) {
   return static_cast<int>(similarity); // Return as integer
 }
 
-// Get color based on similarity percentage
-uint32_t getColorBasedOnAccuracy(int accuracy) {
+// Get colour based on similarity percentage
+uint32_t getcolourBasedOnAccuracy(int accuracy) {
   if (accuracy > 95) return pixels.Color(0, 100, 0);   // Deep Green
   if (accuracy > 90) return pixels.Color(0, 128, 0);   // Green
   if (accuracy > 85) return pixels.Color(50, 205, 50); // Lime Green
@@ -42,14 +42,14 @@ uint32_t getColorBasedOnAccuracy(int accuracy) {
   return pixels.Color(139, 0, 0); // Dark Red
 }
 
-// Display color based on accuracy
+// Display colour based on accuracy
 void displayBasedOnAccuracy(int accuracy) {
-  uint32_t color = getColorBasedOnAccuracy(accuracy);
-  for (int i = 0; i < NUMPIXELS; i++) pixels.setPixelColor(i, color);
+  uint32_t colour = getcolourBasedOnAccuracy(accuracy);
+  for (int i = 0; i < NUMPIXELS; i++) pixels.setPixelColor(i, colour);
   pixels.show();
 }
 
-// Display dynamic color-moving effect
+// Display dynamic colour-moving effect
 void displayDynamicStandby() {
   for (long firstPixelHue = 0; firstPixelHue < 65536; firstPixelHue += 512) {
     for (int i = 0; i < NUMPIXELS; i++) {
@@ -63,12 +63,12 @@ void displayDynamicStandby() {
 
 void setupLED() {
   pixels.begin(); // Initialize NeoPixel
-  setReferenceColor(255, 255, 255); // Set reference color
+  setReferencecolour(255, 255, 255); // Set reference colour
 }
 
 void showLED() {
   if (needToCompare) {
-    int inputR = 25, inputG = 25, inputB = 25; // Example input color
+    int inputR = 25, inputG = 25, inputB = 25; // Example input colour
     int accuracy = calculateSimilarity(inputR, inputG, inputB);
     displayBasedOnAccuracy(accuracy);
     delay(5000); // Display result for 5 seconds
@@ -78,8 +78,8 @@ void showLED() {
   }
 }
 
-// Trigger color comparison mode with new input
+// Trigger colour comparison mode with new input
 void activateComparisonMode(int r, int g, int b) {
-  setReferenceColor(r, g, b); // Set new reference color
+  setReferencecolour(r, g, b); // Set new reference colour
   needToCompare = true;      // Enable comparison mode
 }

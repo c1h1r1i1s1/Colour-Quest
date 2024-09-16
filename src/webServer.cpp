@@ -2,8 +2,76 @@
 
 const char* ssid = "Colour Quest";
 const char* password = "123456789";
-// WiFiServer server(80);
+
 AsyncWebServer server(80);
+
+String difficulty;
+String colourBlindMode;
+
+void loadSettings() {
+	File file = SPIFFS.open("/settings.json");
+	if (!file) {
+		Serial.println("Failed to open settings file for reading");
+		return;
+	}
+
+	// Create a JSON document to store the read values
+	JsonDocument doc;
+	DeserializationError error = deserializeJson(doc, file);
+	if (error) {
+		Serial.println("Failed to parse settings file");
+		return;
+	}
+
+	// Retrieve settings from JSON
+	difficulty = doc["difficulty"] | "Easy";  // Use "easy" as default
+	colourBlindMode = doc["colour_blind_mode"] | "None";
+
+	file.close();
+}
+
+bool saveSettings() {
+	// Open file for writing
+	File file = SPIFFS.open("/settings.json", FILE_WRITE);
+	if (!file) {
+		Serial.println("Failed to open settings file for writing");
+		return 0;
+	}
+
+	// Create a JSON document to hold the settings
+	JsonDocument doc;
+	doc["difficulty"] = difficulty;
+	doc["colour_blind_mode"] = colourBlindMode;
+
+	// Serialize JSON to the file
+	serializeJson(doc, file);
+	file.close();
+
+	return 1;
+}
+
+void handleSubmit(AsyncWebServerRequest *request) {
+	if (request->hasParam("difficulty", true) && request->hasParam("colour-blind-mode", true)) {
+		difficulty = request->getParam("difficulty", true)->value();
+		colourBlindMode = request->getParam("colour-blind-mode", true)->value();
+
+		// Debug print to Serial
+		Serial.println("\nReceived POST request:");
+		Serial.println("Difficulty: " + difficulty);
+		Serial.println("Colour Blind Mode: " + colourBlindMode);
+
+		// Save settings and display status page
+		if (saveSettings()) {
+			request->send(SPIFFS, "/success.html", "text/html");
+		} else {
+			request->send(SPIFFS, "/failure.html", "text/html");
+		}
+
+	} else {
+		Serial.println("Error with setting change submission");
+		request->send(400, "text/plain", "Missing parameters");
+	}
+}
 
 void setupWebServer() {
 	// Start wifi access point
@@ -16,11 +84,22 @@ void setupWebServer() {
 		return;
 	}
 
-	// Start web server
-	// server.begin();
+	// Load user settings
+	loadSettings();
 
 	// Serve static files from SPIFFS
 	server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+
+	// Setup pathways
+	// Handle form submission via POST
+	server.on("/submit", HTTP_POST, [](AsyncWebServerRequest *request) {
+		handleSubmit(request);
+	});
+
+	server.on("/get-settings", HTTP_GET, [](AsyncWebServerRequest *request){
+		String json = "{\"difficulty\": \"" + difficulty + "\", \"colourBlindMode\": \"" + colourBlindMode + "\"}";
+		request->send(200, "application/json", json);
+	});
 
 	// Start the server
 	server.begin();
@@ -35,47 +114,4 @@ void setupWebServer() {
 
 	// Announce the hostname on the network
 	MDNS.addService("http", "tcp", 80);
-}
-
-void webListener() {
-	// WiFiClient client = server.available();
-
-	// if (client) {
-	// 	Serial.println("New Client Connected");
-	// 	String currentLine = "";
-
-	// 	// Loop while the client's connected
-	// 	while (client.connected()) {
-	// 		if (client.available()) {
-	// 			char c = client.read();
-	// 			Serial.write(c); // Print request to serial monitor
-	// 			currentLine += c;
-
-	// 			// If the request ends with a new line, it's the end of the request
-	// 			if (c == '\n') {
-	// 				// Send a response
-	// 				client.println("HTTP/1.1 200 OK");
-	// 				client.println("Content-type:text/html");
-	// 				client.println(); // end headers
-
-	// 				// Web page content (simple HTML)
-	// 				client.println("<!DOCTYPE html><html>");
-	// 				client.println("<head><title>ColorQuest</title></head>");
-	// 				client.println("<body><h1>Welcome to ColorQuest</h1>");
-	// 				client.println("<p>Use this interface to control the device.</p>");
-	// 				client.println("</body></html>");
-
-	// 				// Break out of the loop
-	// 				break;
-	// 			}
-	// 		}
-	// 	}
-
-	// 	// Give the web browser time to receive the data
-	delay(1);
-
-	// 	// Close the connection
-	// 	client.stop();
-	// 	Serial.println("Client Disconnected");
-	// }
 }
