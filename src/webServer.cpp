@@ -101,6 +101,11 @@ void setupWebServer() {
 		request->send(200, "application/json", json);
 	});
 
+	// Serve the favicon.ico
+	server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
+		request->send(SPIFFS, "/favicon.ico", "image/x-icon");
+	});
+
 	// Start the server
 	server.begin();
 	Serial.println("HTTP server started");

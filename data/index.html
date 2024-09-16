@@ -1,73 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colour Quest Control Panel</title>
-    <link rel="stylesheet" href="styles.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Colour Quest Control Panel</title>
+	<link rel="stylesheet" href="styles.css">
+	<link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+	<style>
+        /* CSS for the loading indicator */
+        #loading {
+            font-size: 18px;
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #control-form {
+            margin-top: 20px;
+            display: none; /* Initially hide the form */
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Colour Quest Control Panel</h1>
-    </header>
+	<header>
+		<h1>Colour Quest Control Panel</h1>
+	</header>
 
-    <section class="settings">
-        <h2>Settings</h2>
-        <form id="control-form" action="/submit" method="POST">
-            <div class="form-group">
-                <label for="difficulty">Difficulty Level:</label>
-                <select id="difficulty" name="difficulty">
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                </select>
-            </div>
+	<section class="settings">
+		<h2>Settings</h2>
 
-            <div class="form-group">
-                <label for="colour-blind-mode">Colour-Blind Mode:</label>
-                <select id="colour-blind-mode" name="colour-blind-mode">
-                    <option value="none">None</option>
-                    <option value="protanopia">Protanopia (Red-blind)</option>
-                    <option value="deuteranopia">Deuteranopia (Green-blind)</option>
-                    <option value="tritanopia">Tritanopia (Blue-blind)</option>
-                </select>
-            </div>
+		<div id="loading">Loading settings...</div>
 
-            <div class="form-group">
-                <button type="submit" value="Submit">Apply Settings</button>
-            </div>
-        </form>
-    </section>
+		<form id="control-form" action="/submit" method="POST">
+			<div class="form-group">
+				<label for="difficulty">Difficulty Level:</label>
+				<select id="difficulty" name="difficulty">
+					<option value="easy">Easy</option>
+					<option value="medium">Medium</option>
+					<option value="hard">Hard</option>
+				</select>
+			</div>
 
-    <section class="statistics">
-        <h2>Child Performance Statistics</h2>
-        <div id="stats">
-            <p>Total Attempts: <span id="total-attempts">0</span></p>
-            <p>Correct Matches: <span id="correct-matches">0</span></p>
-            <p>Incorrect Matches: <span id="incorrect-matches">0</span></p>
-            <p>Possible colour-Blindness:</p>
-            <ul>
-                <li>Protanopia (Red-blind): <span id="protanopia-count">0</span></li>
-                <li>Deuteranopia (Green-blind): <span id="deuteranopia-count">0</span></li>
-                <li>Tritanopia (Blue-blind): <span id="tritanopia-count">0</span></li>
-            </ul>
-        </div>
-    </section>
+			<div class="form-group">
+				<label for="colour-blind-mode">Colour-Blind Mode:</label>
+				<select id="colour-blind-mode" name="colour-blind-mode">
+					<option value="none">None</option>
+					<option value="protanopia">Protanopia (Red-blind)</option>
+					<option value="deuteranopia">Deuteranopia (Green-blind)</option>
+					<option value="tritanopia">Tritanopia (Blue-blind)</option>
+				</select>
+			</div>
 
-    <footer>
-        <p>Colour Quest</p>
-    </footer>
+			<div class="form-group">
+				<button type="submit" value="Submit">Apply Settings</button>
+			</div>
+		</form>
+	</section>
 
-    <script>
-        // Fetch existing settings from the ESP32
-        fetch('/get-settings')
-        .then(response => response.json())
-        .then(data => {
-            // Populate the form with current settings
-            document.getElementById('difficulty').value = data.difficulty;
-            document.getElementById('colour-blind-mode').value = data.colourBlindMode;
-        })
-        .catch(error => console.error('Error fetching settings:', error));
-    </script>
+	<section class="statistics">
+		<h2>Child Performance Statistics</h2>
+		<div id="stats">
+			<p>Total Attempts: <span id="total-attempts">0</span></p>
+			<p>Correct Matches: <span id="correct-matches">0</span></p>
+			<p>Incorrect Matches: <span id="incorrect-matches">0</span></p>
+			<p>Possible colour-Blindness:</p>
+			<ul>
+				<li>Protanopia (Red-blind): <span id="protanopia-count">0</span></li>
+				<li>Deuteranopia (Green-blind): <span id="deuteranopia-count">0</span></li>
+				<li>Tritanopia (Blue-blind): <span id="tritanopia-count">0</span></li>
+			</ul>
+		</div>
+	</section>
+
+	<footer>
+		<p>Colour Quest</p>
+	</footer>
+
+	<script>
+		// Fetch existing settings from the ESP32
+		fetch('/get-settings')
+		.then(response => response.json())
+		.then(data => {
+			// Populate the form with current settings
+			document.getElementById('difficulty').value = data.difficulty;
+			document.getElementById('colour-blind-mode').value = data.colourBlindMode;
+
+			// Hide the loading indicator and show the form
+			document.getElementById("loading").style.display = "none";
+			document.getElementById("control-form").style.display = "block";
+		})
+		.catch(error => console.error('Error fetching settings:', error));
+	</script>
 </body>
 </html>

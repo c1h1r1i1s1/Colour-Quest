@@ -1,4 +1,3 @@
-// Note these settings are flashed onto the device, and do not actually reflect what is currently on the device
 {
 	"difficulty": "easy",
 	"colour_blind_mode": "none"
