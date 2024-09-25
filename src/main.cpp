@@ -3,9 +3,12 @@
 void setup() {
 	Serial.begin(9600);
 
-	setupColourSensor();
+	// setupColourSensor();
 	setupWebServer();
-	setupLED();
+	// setupLED();
+
+	GameObject gameObject;
+	enum difficulty
 }
 
 void loop() {

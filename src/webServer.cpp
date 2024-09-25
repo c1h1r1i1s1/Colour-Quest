@@ -25,7 +25,7 @@ void loadSettings() {
 
 	// Retrieve settings from JSON
 	difficulty = doc["difficulty"] | "Easy";  // Use "easy" as default
-	colourBlindMode = doc["colour_blind_mode"] | "None";
+	colourBlindMode = doc["colourBlindMode"] | "None";
 
 	file.close();
 }
@@ -41,7 +41,7 @@ bool saveSettings() {
 	// Create a JSON document to hold the settings
 	JsonDocument doc;
 	doc["difficulty"] = difficulty;
-	doc["colour_blind_mode"] = colourBlindMode;
+	doc["colourBlindMode"] = colourBlindMode;
 
 	// Serialize JSON to the file
 	serializeJson(doc, file);
