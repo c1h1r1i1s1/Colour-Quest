@@ -2,9 +2,6 @@
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
-#include <ArduinoJson.h>
+#include "fileAccess.h"
 
-extern String difficulty;
-extern String colourBlindMode;
-
-void setupWebServer();
+void setupWebServer(String difficulty, String colourBlindMode);

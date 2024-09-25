@@ -2,12 +2,14 @@
 #include "detectColour.h"
 #include "webServer.h"
 #include "pinout.h"
+#include "fileAccess.h"
 // #include "LEDCircularStrip.h"
 
 enum GameState {
 	STARTUP,
-	MEDIUM,
-	HIGH
+	SCANNING,
+	WAITING,
+	PROCESSING
 };
 
 enum Difficulty {
@@ -33,5 +35,4 @@ struct GameObject {
 	enum Difficulty difficulty;
 	enum GameMode gameMode;
 	enum ColourBlindMode colourBlindMode;
-
 };

@@ -5,55 +5,10 @@ const char* password = "123456789";
 
 AsyncWebServer server(80);
 
-String difficulty;
-String colourBlindMode;
-
-void loadSettings() {
-	File file = SPIFFS.open("/settings.json");
-	if (!file) {
-		Serial.println("Failed to open settings file for reading");
-		return;
-	}
-
-	// Create a JSON document to store the read values
-	JsonDocument doc;
-	DeserializationError error = deserializeJson(doc, file);
-	if (error) {
-		Serial.println("Failed to parse settings file");
-		return;
-	}
-
-	// Retrieve settings from JSON
-	difficulty = doc["difficulty"] | "Easy";  // Use "easy" as default
-	colourBlindMode = doc["colourBlindMode"] | "None";
-
-	file.close();
-}
-
-bool saveSettings() {
-	// Open file for writing
-	File file = SPIFFS.open("/settings.json", FILE_WRITE);
-	if (!file) {
-		Serial.println("Failed to open settings file for writing");
-		return 0;
-	}
-
-	// Create a JSON document to hold the settings
-	JsonDocument doc;
-	doc["difficulty"] = difficulty;
-	doc["colourBlindMode"] = colourBlindMode;
-
-	// Serialize JSON to the file
-	serializeJson(doc, file);
-	file.close();
-
-	return 1;
-}
-
 void handleSubmit(AsyncWebServerRequest *request) {
 	if (request->hasParam("difficulty", true) && request->hasParam("colour-blind-mode", true)) {
-		difficulty = request->getParam("difficulty", true)->value();
-		colourBlindMode = request->getParam("colour-blind-mode", true)->value();
+		String difficulty = request->getParam("difficulty", true)->value();
+		String colourBlindMode = request->getParam("colour-blind-mode", true)->value();
 
 		// Debug print to Serial
 		Serial.println("\nReceived POST request:");
@@ -61,7 +16,7 @@ void handleSubmit(AsyncWebServerRequest *request) {
 		Serial.println("Colour Blind Mode: " + colourBlindMode);
 
 		// Save settings and display status page
-		if (saveSettings()) {
+		if (saveSettings(difficulty, colourBlindMode)) {
 			request->send(SPIFFS, "/success.html", "text/html");
 		} else {
 			request->send(SPIFFS, "/failure.html", "text/html");
@@ -73,7 +28,7 @@ void handleSubmit(AsyncWebServerRequest *request) {
 	}
 }
 
-void setupWebServer() {
+void setupWebServer(String difficulty, String colourBlindMode) {
 	// Start wifi access point
 	WiFi.softAP(ssid, password);
 	Serial.println("Wi-Fi AP started");
@@ -84,9 +39,6 @@ void setupWebServer() {
 		return;
 	}
 
-	// Load user settings
-	loadSettings();
-
 	// Serve static files from SPIFFS
 	server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
@@ -96,7 +48,7 @@ void setupWebServer() {
 		handleSubmit(request);
 	});
 
-	server.on("/get-settings", HTTP_GET, [](AsyncWebServerRequest *request){
+	server.on("/get-settings", HTTP_GET, [difficulty, colourBlindMode](AsyncWebServerRequest *request){
 		String json = "{\"difficulty\": \"" + difficulty + "\", \"colourBlindMode\": \"" + colourBlindMode + "\"}";
 		request->send(200, "application/json", json);
 	});
