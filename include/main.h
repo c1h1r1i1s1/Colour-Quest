@@ -3,18 +3,18 @@
 #include "webServer.h"
 #include "pinout.h"
 #include "fileAccess.h"
-// #include "LEDCircularStrip.h"
+#include "wifiCon.h"
+#include "ledController.h"
 
 enum GameState {
+	INIT,
 	STARTUP,
 	SCANNING,
-	WAITING,
-	PROCESSING
+	WAITING
 };
 
 enum Difficulty {
 	EASY,
-	MEDIUM,
 	HARD
 };
 
@@ -36,3 +36,5 @@ struct GameObject {
 	enum GameMode gameMode;
 	enum ColourBlindMode colourBlindMode;
 };
+
+GameObject gameObject;

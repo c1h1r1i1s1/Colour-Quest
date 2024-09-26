@@ -3,5 +3,8 @@
 
 String getDifficulty();
 String getColourBlindMode();
+String getSsid();
+String getPassword();
+
 void loadSettings();
 bool saveSettings(String newDifficulty, String newColourBlindMode);

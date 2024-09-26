@@ -45,6 +45,7 @@ void scanColour(int Level0, int Level1) {
 
 // Go through RGB, scanning Red, Green, Blue individually
 void IRAM_ATTR TSC_Callback() {
+	Serial.println("timer finish");
 	switch(colourScanIndex) {
 		case 0:
 			scanColour(LOW, LOW); // Start red scan
@@ -84,6 +85,7 @@ void setupColourSensor() {
 	attachInterrupt(digitalPinToInterrupt(OUT), TSC_Count, RISING);
 
 	// Set timer for 1 second (1000000 microseconds)
+	Serial.println("Start gap");
 	timerAlarmWrite(timer, 100, true);
 	timerAlarmEnable(timer);
 

@@ -2,8 +2,16 @@
 
 String difficulty;
 String colourBlindMode;
+String ssid;
+String password;
 
 void loadSettings() {
+	// Initialize SPIFFS for web page file handling
+	if (!SPIFFS.begin(true)) {
+		Serial.println("An error occurred while mounting SPIFFS");
+		return;
+	}
+	
 	File file = SPIFFS.open("/settings.json");
 	if (!file) {
 		Serial.println("Failed to open settings file for reading");
@@ -19,8 +27,10 @@ void loadSettings() {
 	}
 
 	// Retrieve settings from JSON
-	difficulty = doc["difficulty"] | "EASY";  // Use "easy" as default
+	difficulty = doc["difficulty"] | "EASY";
 	colourBlindMode = doc["colourBlindMode"] | "NONE";
+	ssid = doc["ssid"] | NULL;
+	password = doc["password"] | NULL;
 
 	file.close();
 }
@@ -31,6 +41,14 @@ String getDifficulty() {
 
 String getColourBlindMode() {
 	return colourBlindMode;
+}
+
+String getSsid() {
+	return ssid;
+}
+
+String getPassword() {
+	return password;
 }
 
 bool saveSettings(String newDifficulty, String newColourBlindMode) {

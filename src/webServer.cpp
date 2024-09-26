@@ -1,7 +1,7 @@
 #include "webServer.h"
 
-const char* ssid = "Colour Quest";
-const char* password = "123456789";
+const char* ap_ssid = "Colour Quest";
+const char* ap_password = "123456789";
 
 AsyncWebServer server(80);
 
@@ -30,14 +30,8 @@ void handleSubmit(AsyncWebServerRequest *request) {
 
 void setupWebServer(String difficulty, String colourBlindMode) {
 	// Start wifi access point
-	WiFi.softAP(ssid, password);
+	WiFi.softAP(ap_ssid, ap_password);
 	Serial.println("Wi-Fi AP started");
-
-	// Initialize SPIFFS for web page file handling
-	if (!SPIFFS.begin(true)) {
-		Serial.println("An error occurred while mounting SPIFFS");
-		return;
-	}
 
 	// Serve static files from SPIFFS
 	server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
@@ -48,8 +42,8 @@ void setupWebServer(String difficulty, String colourBlindMode) {
 		handleSubmit(request);
 	});
 
-	server.on("/get-settings", HTTP_GET, [difficulty, colourBlindMode](AsyncWebServerRequest *request){
-		String json = "{\"difficulty\": \"" + difficulty + "\", \"colourBlindMode\": \"" + colourBlindMode + "\"}";
+	server.on("/get-settings", HTTP_GET, [](AsyncWebServerRequest *request){
+		String json = "{\"difficulty\": \"" + getDifficulty() + "\", \"colourBlindMode\": \"" + getColourBlindMode() + "\"}";
 		request->send(200, "application/json", json);
 	});
 
