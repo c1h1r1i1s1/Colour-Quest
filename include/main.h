@@ -5,6 +5,7 @@
 #include "fileAccess.h"
 #include "wifiCon.h"
 #include "ledController.h"
+#include "lidSwitch.h"
 
 enum GameState {
 	INIT,

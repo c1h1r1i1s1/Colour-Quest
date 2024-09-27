@@ -29,8 +29,8 @@ void loadSettings() {
 	// Retrieve settings from JSON
 	difficulty = doc["difficulty"] | "EASY";
 	colourBlindMode = doc["colourBlindMode"] | "NONE";
-	ssid = doc["ssid"] | NULL;
-	password = doc["password"] | NULL;
+	ssid = doc["ssid"] | "ssid";
+	password = doc["password"] | "password";
 
 	file.close();
 }
@@ -51,7 +51,7 @@ String getPassword() {
 	return password;
 }
 
-bool saveSettings(String newDifficulty, String newColourBlindMode) {
+bool saveSettings(String newDifficulty, String newColourBlindMode, String newSsid, String newPassword) {
 	// Open file for writing
 	File file = SPIFFS.open("/settings.json", FILE_WRITE);
 	if (!file) {
@@ -63,9 +63,13 @@ bool saveSettings(String newDifficulty, String newColourBlindMode) {
 	JsonDocument doc;
 	doc["difficulty"] = newDifficulty;
 	doc["colourBlindMode"] = newColourBlindMode;
+	doc["ssid"] = newSsid;
+	doc["password"] = newPassword;
 
 	difficulty = newDifficulty;
 	colourBlindMode = newColourBlindMode;
+	ssid = newSsid;
+	password = newPassword;
 
 	// Serialize JSON to the file
 	serializeJson(doc, file);

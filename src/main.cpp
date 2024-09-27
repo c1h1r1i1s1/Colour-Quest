@@ -16,11 +16,6 @@ ColourBlindMode stringToCBM(String modeStr) {
 
 bool isWifiConnected = false;
 
-// Need to write section on lid reading
-bool isLidClosed() {
-	return random(0, 1);
-}
-
 void setup() {
 	Serial.begin(9600);
 
@@ -38,10 +33,10 @@ void setup() {
 	setupWebServer(getDifficulty(), getColourBlindMode());
 	// setupLED();
 	// Need to set up the button device
+	setupLidSwitch();
 }
 
 void loop() {
-	// delay(5000);
 
 	switch (gameObject.gameMode) {
 		case GUESS:
@@ -49,31 +44,37 @@ void loop() {
 			switch (gameObject.gameState) {
 				case INIT:
 					Serial.println("Starting game...");
-					while (!isLidClosed()) {
+					while (!isLidClosedTemp()) {
 						Serial.println("Please close the lid!");
 						closeLidLights();
 					};
+
 					// Set colour baseline
 					setupColourSensor();
+					break;
 				case STARTUP:
 					switch (gameObject.difficulty) {
 						case EASY:
 							Serial.println("Picking random easy colour");
 							setEasyColour();
+							break;
 						case HARD:
 							Serial.println("Picking random hard colour");
 							setHardColour();
+							break;
 					}
 					gameObject.gameState = WAITING;
+					break;
 				case WAITING:
 					Serial.println("Waiting for user to find item");
-					while (isLidClosed()) {
-						delay(100);
+					while (isLidClosedTemp()) {
+						delay(1000);
 					}
-					while (!isLidClosed()) {
-						delay(100);
+					while (!isLidClosedTemp()) {
+						delay(1000);
 					}
 					gameObject.gameState = SCANNING;
+					break;
 				case SCANNING:
 					Serial.println("Processing item");
 					std::tuple<int, int, int> scannedColour = getColour();
@@ -82,17 +83,17 @@ void loop() {
 					Serial.println(accuracy);
 
 					Serial.println("Open lid to restart game");
-					while (isLidClosed()) {
-						delay(100);
+					while (isLidClosedTemp()) {
+						delay(1000);
 					}
-					while (!isLidClosed()) {
-						delay(100);
+					while (!isLidClosedTemp()) {
+						delay(1000);
 					}
 					gameObject.gameState = STARTUP;
+					break;
 			}
 		case COLLECTION:
 			Serial.println("Collection game mode");
-
 		}
 
 }
