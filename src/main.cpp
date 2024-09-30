@@ -126,7 +126,7 @@ void loop() {
 					}
 					break;
 				case SCANNING:
-					waitingGlow():
+					waitingGlow();
 					if (quickCheck()) {
 						if (isLidClosedTemp()) {
 							Serial.println("Scanning item...");
@@ -136,17 +136,18 @@ void loop() {
 							if (addColour(r, g, b)) {
 								Serial.println("Colour finding finished");
 								gameObject.gameState = PROCESSING;
+							} else {
+								gameObject.gameState = WAITING;
 							}
 						}
 					}
+					break;
 				case PROCESSING:
 					String foundColours = getFoundColours();
 					genOutlines(foundColours);
 					// Need to do the image saving stuff
 
-					for (int i=0; i<200; i++) {
-						displayDynamicStandby();
-					}
+					displayDynamicStandby();
 					gameObject.gameState = STARTUP;
 					break;
 			}

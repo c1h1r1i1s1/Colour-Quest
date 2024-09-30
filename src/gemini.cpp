@@ -5,6 +5,30 @@ String text_request_base = "I have 4 coloured pencils of the following rgb value
 String text_request_top = ". What could a child draw using these colours? Please give me 3 options in an ordered list saying nothing else. They could be scenes, things, animals, etc. Please also respond in a simplistic manner with no adjectives. ONLY MENTION THE ITEMS, DO NOT MENTION THEIR COLOUR";
 String image_request_base = "Please image generate an outline of: ";
 
+void getDrawing(String prompt) {
+	Serial.print("Image searching for: ");
+	Serial.println(prompt);
+}
+
+void processText(String imageIdeas) {
+    int start = 0;
+	int end = imageIdeas.indexOf('\n');
+
+	while (end != -1) {
+		String idea = imageIdeas.substring(start, end);
+		idea = idea.substring(idea.indexOf(". ") + 2);
+
+		getDrawing(idea);
+
+		start = end + 1;
+		end = imageIdeas.indexOf('\n', start);
+	}
+
+	String lastIdea = imageIdeas.substring(start);
+	lastIdea = lastIdea.substring(lastIdea.indexOf(". ") + 2);
+	getDrawing(lastIdea);
+}
+
 void genOutlines(String rgbInput) {
 	HTTPClient http_client;
 	// Check if the client can connect to the Gemini API.
@@ -28,5 +52,6 @@ void genOutlines(String rgbInput) {
 	JsonDocument jsonDoc;
 	deserializeJson(jsonDoc, response);
 	String imageDescription = jsonDoc["candidates"][0]["content"]["parts"][0]["text"];
-	Serial.println(imageDescription);
+	processText(imageDescription);
+
 }

@@ -1,5 +1,4 @@
 #include "ledController.h"
-// #include <Adafruit_NeoPixel.h>
 
 // NeoPixel configuration
 #define NUMPIXELS 24
@@ -109,18 +108,18 @@ bool addColour(int r, int g, int b) {
 String getFoundColours() {
 	String rgbString = "";
   
-	for (int i = 0; i < numColours; i++) {
-		uint32_t color = colours[i];
+	for (int i = 0; i < 4; i++) {
+		uint32_t colour = foundColours[i];
 
 		// Extract red, green, and blue components from the 32-bit color value
-		uint8_t r = (color >> 16) & 0xFF;
-		uint8_t g = (color >> 8) & 0xFF;
-		uint8_t b = color & 0xFF;
+		uint8_t r = (colour >> 16) & 0xFF;
+		uint8_t g = (colour >> 8) & 0xFF;
+		uint8_t b = colour & 0xFF;
 
 		// Append the RGB values to the string
 		rgbString += "(" + String(r) + "," + String(g) + "," + String(b) + ")";
 
-		if (i < numColours - 1) {
+		if (i < 3) {
 			rgbString += ", ";
 		}
 	}
@@ -146,7 +145,7 @@ void waitingGlow() {
 	uint8_t brightness = (uint8_t)(pulseValue * 255);
 
 	// Pulse the sections white that aren't filled with colour.
-	for (int i = colorSection * (NUMPIXELS / 4); i < NUMPIXELS; i++) {
+	for (int i = colourSection * (NUMPIXELS / 4); i < NUMPIXELS; i++) {
 		pixels.setPixelColor(i, pixels.Color(brightness, brightness, brightness));
 	}
 
@@ -154,7 +153,7 @@ void waitingGlow() {
 	int ledsPerSection = NUMPIXELS / 4;
 	for (int i = 0; i < colourSection; i++) {
 		for (int j = i * ledsPerSection; j < (i + 1) * ledsPerSection; j++) {
-			pixels.setPixelColor(j, colors[i]);
+			pixels.setPixelColor(j, foundColours[i]);
 		}
 	}
 
