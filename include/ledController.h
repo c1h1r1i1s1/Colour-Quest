@@ -12,3 +12,8 @@ void setupLED();
 int compareColour(int r, int g, int b);
 
 void closeLidLights();
+
+void waitingGlow();
+bool addColour(int r, int g, int b);
+void resetColourFinder();
+String getFoundColours();

@@ -9,7 +9,7 @@ bool wifiConnect(String local_ssid, String local_password) {
 
 	int count = 0;
 	while (WiFi.status() != WL_CONNECTED) {
-		if (count > 1) {
+		if (count > 10) {
 			Serial.println("Could not connect to network");
 			return 0;
 		}

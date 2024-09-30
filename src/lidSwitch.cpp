@@ -23,3 +23,7 @@ bool doubleCheck(bool previous) {
 bool isLidClosed() {
 	return doubleCheck(digitalRead(SWI_PIN));
 }
+
+bool quickCheck() {
+	return digitalRead(SWI_PIN);
+}

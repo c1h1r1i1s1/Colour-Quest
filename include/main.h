@@ -6,12 +6,14 @@
 #include "wifiCon.h"
 #include "ledController.h"
 #include "lidSwitch.h"
+#include "gemini.h"
 
 enum GameState {
 	INIT,
 	STARTUP,
 	SCANNING,
-	WAITING
+	WAITING,
+	PROCESSING
 };
 
 enum Difficulty {

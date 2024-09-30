@@ -4,3 +4,4 @@
 void setupLidSwitch();
 bool isLidClosedTemp();
 bool isLidClosed();
+bool quickCheck();

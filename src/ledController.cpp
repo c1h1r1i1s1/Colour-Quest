@@ -82,6 +82,85 @@ void displayDynamicStandby() {
 	}
 }
 
+uint32_t foundColours[4] = {
+	pixels.Color(0, 0, 0),
+	pixels.Color(0, 0, 0),
+	pixels.Color(0, 0, 0),
+	pixels.Color(0, 0, 0)
+};
+
+int colourSection = 0;
+float pulseValue = 0;
+bool pulseUp = true;
+
+void resetColourFinder() {
+	colourSection = 0;
+}
+
+bool addColour(int r, int g, int b) {
+	foundColours[colourSection++] = pixels.Color(r, g, b);
+	if (colourSection == 4) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+String getFoundColours() {
+	String rgbString = "";
+  
+	for (int i = 0; i < numColours; i++) {
+		uint32_t color = colours[i];
+
+		// Extract red, green, and blue components from the 32-bit color value
+		uint8_t r = (color >> 16) & 0xFF;
+		uint8_t g = (color >> 8) & 0xFF;
+		uint8_t b = color & 0xFF;
+
+		// Append the RGB values to the string
+		rgbString += "(" + String(r) + "," + String(g) + "," + String(b) + ")";
+
+		if (i < numColours - 1) {
+			rgbString += ", ";
+		}
+	}
+
+	return rgbString;
+}
+
+void waitingGlow() {
+	if (pulseUp) {
+		pulseValue += 0.01;
+		if (pulseValue >= 1.0) {
+			pulseValue = 1.0;
+			pulseUp = false;
+		}
+	} else {
+		pulseValue -= 0.01;
+		if (pulseValue <= 0.0) {
+			pulseValue = 0.0;
+			pulseUp = true;
+		}
+	}
+
+	uint8_t brightness = (uint8_t)(pulseValue * 255);
+
+	// Pulse the sections white that aren't filled with colour.
+	for (int i = colorSection * (NUMPIXELS / 4); i < NUMPIXELS; i++) {
+		pixels.setPixelColor(i, pixels.Color(brightness, brightness, brightness));
+	}
+
+	// Fill the found colour sections
+	int ledsPerSection = NUMPIXELS / 4;
+	for (int i = 0; i < colourSection; i++) {
+		for (int j = i * ledsPerSection; j < (i + 1) * ledsPerSection; j++) {
+			pixels.setPixelColor(j, colors[i]);
+		}
+	}
+
+	pixels.show();
+}
+
 void closeLidLights() {
 	refR = 255;
 	refG = 255;
