@@ -7,4 +7,4 @@ String getSsid();
 String getPassword();
 
 void loadSettings();
-bool saveSettings(String newDifficulty, String newColourBlindMode);
+bool saveSettings(String newDifficulty, String newColourBlindMode, String newSsid, String newPassword);
