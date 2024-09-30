@@ -1,4 +1,4 @@
 *.DS_STORE
 .pio/
 .vscode/
-./src/api-key.cpp
+/src/api-key.cpp
