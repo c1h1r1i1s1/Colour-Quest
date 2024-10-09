@@ -6,7 +6,7 @@
 #include "wifiCon.h"
 #include "ledController.h"
 #include "lidSwitch.h"
-#include "gemini.h"
+#include "gptAccess.h"
 
 enum GameState {
 	INIT,
@@ -30,7 +30,8 @@ enum ColourBlindMode {
 
 enum GameMode {
 	GUESS,
-	COLLECTION
+	COLLECTION,
+	TEST
 };
 
 struct GameObject {
