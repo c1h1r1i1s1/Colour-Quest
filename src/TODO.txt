@@ -1,6 +1,0 @@
-TODO
-
-Website wifi setting adjustment
-Colour blind recognition
-Colour blind success validation
-Speaker connection/

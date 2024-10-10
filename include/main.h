@@ -6,12 +6,14 @@
 #include "wifiCon.h"
 #include "ledController.h"
 #include "lidSwitch.h"
+#include "gptAccess.h"
 
 enum GameState {
 	INIT,
 	STARTUP,
 	SCANNING,
-	WAITING
+	WAITING,
+	PROCESSING
 };
 
 enum Difficulty {
@@ -28,7 +30,8 @@ enum ColourBlindMode {
 
 enum GameMode {
 	GUESS,
-	COLLECTION
+	COLLECTION,
+	TEST
 };
 
 struct GameObject {

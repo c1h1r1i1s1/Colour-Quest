@@ -1,3 +1,5 @@
 *.DS_STORE
 .pio/
 .vscode/
+/src/api-key.cpp
+/include/api-key.h

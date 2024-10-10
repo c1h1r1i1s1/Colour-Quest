@@ -23,3 +23,10 @@ bool doubleCheck(bool previous) {
 bool isLidClosed() {
 	return doubleCheck(digitalRead(SWI_PIN));
 }
+
+bool quickCheck() {
+	// return digitalRead(SWI_PIN);
+	int num = round(random(0, 2));
+	Serial.println(num);
+	return num;
+}
