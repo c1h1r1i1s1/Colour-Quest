@@ -73,23 +73,8 @@
 	</section>
 
 	<section>
-		<img src="/dragon.png" alt="Generated Image" style="width:100%; max-width:600px;">
+		<ul id="urlList"></ul>
 	</section>
-
-	<!-- <section class="statistics">
-		<h2>Child Performance Statistics</h2>
-		<div id="stats">
-			<p>Total Attempts: <span id="total-attempts">0</span></p>
-			<p>Correct Matches: <span id="correct-matches">0</span></p>
-			<p>Incorrect Matches: <span id="incorrect-matches">0</span></p>
-			<p>Possible colour-Blindness:</p>
-			<ul>
-				<li>Protanopia (Red-blind): <span id="protanopia-count">0</span></li>
-				<li>Deuteranopia (Green-blind): <span id="deuteranopia-count">0</span></li>
-				<li>Tritanopia (Blue-blind): <span id="tritanopia-count">0</span></li>
-			</ul>
-		</div>
-	</section> -->
 
 	<footer>
 		<p>Colour Quest</p>
@@ -111,6 +96,18 @@
 			document.getElementById("control-form").style.display = "block";
 		})
 		.catch(error => console.error('Error fetching settings:', error));
+
+		// fetch('/get-image-urls')
+		// .then(response => response.json())
+		// .then(data => {
+		// 	const urlList = document.getElementById('urlList'); // Get the <ul> element
+		// 	urlList.innerHTML = ''; // Clear the list
+		// 	data.urls.forEach(urlObj => {
+		// 		const li = document.createElement('li');
+		// 		li.innerHTML = `<a href="${urlObj.url}" target="_blank">${urlObj.url}</a>`;
+		// 		urlList.appendChild(li);
+		// 	});
+		// }
 	</script>
 </body>
 </html>

@@ -2,6 +2,7 @@
 #include <ArduinoJson.h>
 #include <WiFiClientSecure.h>
 #include <SPIFFS.h>
-// #include "api-key.h"
+#include "fileAccess.h"
+#include "api-key.h"
 
-void generateImage(String prompt);
+void createImages(String prompt);

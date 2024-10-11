@@ -154,8 +154,8 @@ void loop() {
 			// }
 			break;
 		case TEST:
-			generateImage("A colouring-in page for a child of a dragon and clouds");
-			delay(100000);
+			createImages("(139,0,0), (154,205,50), (255,255,102), (139,69,19)");
+			delay(1000000);
 			gameObject.gameMode = GUESS;
 			break;
 	}

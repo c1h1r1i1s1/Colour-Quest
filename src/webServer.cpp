@@ -56,6 +56,11 @@ void setupWebServer(String difficulty, String colourBlindMode) {
 		request->send(SPIFFS, "/favicon.ico", "image/x-icon");
 	});
 
+	server.on("/get-image-urls", HTTP_GET, [](AsyncWebServerRequest *request){
+		String doc = getURLs();
+		request->send(200, "application/json", doc);
+	});
+
 	// Start the server
 	server.begin();
 	Serial.println("HTTP server started");

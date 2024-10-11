@@ -1,51 +1,9 @@
 #include "gptAccess.h"
 
-void generateImage(String prompt) {
-	// const char* host = "api.openai.com";
-	// const int httpsPort = 443;
-
-	// WiFiClientSecure client;
-	// client.setInsecure();
-
-	// if (!client.connect(host, httpsPort)) {
-	// 	Serial.println("Connection failed");
-	// 	return;
-	// }
-
-	// String url = "/v1/images/generations";
-	// String auth_header = "Bearer " + String(gpt_personal);
-	// String requestBody = "{\"prompt\": \"" + prompt + "\", \"size\": \"1024x1024\", \"model\": \"dall-e-3\"}";
-
-	// client.println("POST " + url + " HTTP/1.1");
-	// client.println("Host: " + String(host));
-	// client.println("Authorization: " + auth_header);
-	// client.println("Content-Type: application/json");
-	// client.print("Content-Length: ");
-	// client.println(requestBody.length());
-	// client.println();
-	// client.println(requestBody);
-
-	// // Wait for the response
-	// while (client.connected()) {
-	// 	String line = client.readStringUntil('\n');
-	// 	if (line == "\r") {
-	// 		Serial.println("Headers received");
-	// 		break;
-	// 	}
-	// }
-
-	// // Read the response
-	// String response = client.readString();
-	// Serial.println(response);
-	// JsonDocument jsonDoc;
-	// deserializeJson(jsonDoc, response);
-	// String imageUrl = jsonDoc["data"][0]["url"];
-
-	const char* url = "https://oaidalleapiprodscus.blob.core.windows.net/private/org-3RoLMbZBZSrDfeH4K8GlrGAS/user-EmIBImSaT42io42I320A4T7L/img-llJ1P9UPTQyVGgtKDBBECPWa.png?st=2024-10-10T08%3A59%3A06Z&se=2024-10-10T10%3A59%3A06Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-10-09T23%3A01%3A48Z&ske=2024-10-10T23%3A01%3A48Z&sks=b&skv=2024-08-04&sig=I1nRzun5F8efkeUpQ9f99iBi/42ouLRE9daY2ltgVUY%3D";
-	const char* filePath = "/dragon.png";
-
+void downloadImage(String imageUrl, String filePath) { // Not using anymore because it is extremely slow to download and breaks
 	HTTPClient http;
-    http.begin(url);
+	http.setTimeout(30000);
+    http.begin(imageUrl);
     int httpCode = http.GET();
 
     if (httpCode == HTTP_CODE_OK) {
@@ -57,14 +15,19 @@ void generateImage(String prompt) {
         }
 
         WiFiClient* stream = http.getStreamPtr();
-        uint8_t buffer[128] = { 0 };
-        size_t size = 0;
+        uint8_t buffer[512];
+		size_t totalBytes = http.getSize();
+		size_t downloadedBytes = 0;
 
-        // Read data from the server and write to the file
-        while (http.connected() && (size = stream->available())) {
-            size = stream->readBytes(buffer, sizeof(buffer));
-            file.write(buffer, size);
-        }
+		// Read data from the server and write to the file
+		while (http.connected() && (stream->available() > 0 || downloadedBytes < totalBytes)) {
+			size_t bytesRead = stream->readBytes(buffer, sizeof(buffer));
+			if (bytesRead > 0) {
+				// size_t n = stream->readBytes(buffer, sizeof(buffer));
+				file.write(buffer, bytesRead);
+				downloadedBytes += bytesRead;
+			}
+		}
 
         file.close();
         Serial.println("Download completed and saved to SPIFFS.");
@@ -73,86 +36,137 @@ void generateImage(String prompt) {
         Serial.printf("HTTP GET request failed, code: %d\n", httpCode);
         http.end();
     }
+}
 
+String generateImage(String prompt) {
+	const char* host = "api.openai.com";
+	const int httpsPort = 443;
 
+	WiFiClientSecure client;
+	client.setInsecure();
 
+	if (!client.connect(host, httpsPort)) {
+		Serial.println("Connection failed");
+		return "";
+	}
 
-	// Serial.println("starting");
+	String url = "/v1/images/generations";
+	String auth_header = "Bearer " + String(gpt_personal);
+	String requestBody = "{\"prompt\": \"A colouring-in page for a child of: " + prompt + "\", \"size\": \"1024x1024\", \"model\": \"dall-e-3\"}";
 
-	// String imageUrl = "https://oaidalleapiprodscus.blob.core.windows.net/private/org-3RoLMbZBZSrDfeH4K8GlrGAS/user-EmIBImSaT42io42I320A4T7L/img-llJ1P9UPTQyVGgtKDBBECPWa.png?st=2024-10-10T08%3A59%3A06Z&se=2024-10-10T10%3A59%3A06Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-10-09T23%3A01%3A48Z&ske=2024-10-10T23%3A01%3A48Z&sks=b&skv=2024-08-04&sig=I1nRzun5F8efkeUpQ9f99iBi/42ouLRE9daY2ltgVUY%3D";
+	client.println("POST " + url + " HTTP/1.1");
+	client.println("Host: " + String(host));
+	client.println("Authorization: " + auth_header);
+	client.println("Content-Type: application/json");
+	client.print("Content-Length: ");
+	client.println(requestBody.length());
+	client.println();
+	client.println(requestBody);
 
-	// Serial.println("about to print");
+	// Wait for the response
+	while (client.connected()) {
+		String line = client.readStringUntil('\n');
+		if (line == "\r") {
+			Serial.println("Headers received");
+			break;
+		}
+	}
 
-	// // Send HTTP GET request
-	// client.print(String("GET ") + imageUrl + " HTTP/1.1\r\n" +
-	// 		"Host: api.openai.com\r\n" +
-	// 		"Connection: close\r\n\r\n");
+	// Read the response
+	String response = client.readString();
+	Serial.println(response);
+	JsonDocument jsonDoc;
+	deserializeJson(jsonDoc, response);
+	String imageUrl = jsonDoc["data"][0]["url"];
 
-	// Serial.println("waiting for available");
+	// String imageUrl = "https://oaidalleapiprodscus.blob.core.windows.net/private/org-3RoLMbZBZSrDfeH4K8GlrGAS/user-EmIBImSaT42io42I320A4T7L/img-fyNFyDZWfXZN3zoEQt5HqBKa.png?st=2024-10-11T00%3A39%3A16Z&se=2024-10-11T02%3A39%3A16Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-10-10T23%3A11%3A24Z&ske=2024-10-11T23%3A11%3A24Z&sks=b&skv=2024-08-04&sig=qOmHCY/JrrI7Z1hfqQGe7te8V/sOUuxmTSZ64SgJHQI%3D";
 
-	// while (client.connected() && !client.available()) delay(10);
+	return imageUrl;
+}
 
-	// Serial.println("about to read string");
+void createImages(String colours) {
+	const char* host = "api.openai.com";
+	const int httpsPort = 443;
 
-	// while (client.available()) {
-	// 	String line = client.readStringUntil('\n');
-	// 	if (line == "\r") break;
-	// }
+	WiFiClientSecure client;
+	client.setInsecure();
 
-	// Serial.println("about to open file");
+	if (!client.connect(host, httpsPort)) {
+		Serial.println("Connection failed");
+		return;
+	}
 
-	// File file = SPIFFS.open("/test.png", FILE_WRITE);
-	// if (!file) {
-	// 	Serial.println("Failed to open file for writing");
-	// 	return;
-	// }
+	String url = "/v1/chat/completions";
+	String auth_header = "Bearer " + String(gpt_personal);
+	String requestBody = R"({
+		"model": "gpt-4o-mini",
+		"messages": [
+			{
+				"role": "system",
+				"content": "You are tasked with recommending things for a child to draw based on user-provided RGB colours. You will be given a list of RGB colours and shall return 3 image options in the json format provided, saying nothing else. They could be scenes, things, animals etc. Please respond in a simplistic manner without mentioning any of the colours, just a description of the drawing."
+			},
+			{
+				"role": "user",
+				"content": ")" + colours + R"("
+			}
+		],
+		"response_format": {
+			"type": "json_schema",
+			"json_schema": {
+				"name": "image_recommendations",
+				"schema": {
+					"type": "object",
+					"properties": {
+						"recommendations": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"idea": { "type": "string" }
+								},
+								"required": ["idea"],
+								"additionalProperties": false
+							}
+						}
+					},
+					"required": ["recommendations"],
+					"additionalProperties": false
+				},
+				"strict": true
+			}
+		}
+	})";
 
-	// Serial.println("about to read client bytes");
+	client.println("POST " + url + " HTTP/1.1");
+	client.println("Host: " + String(host));
+	client.println("Authorization: " + auth_header);
+	client.println("Content-Type: application/json");
+	client.print("Content-Length: ");
+	client.println(requestBody.length());
+	client.println();
+	client.println(requestBody);
 
-	// while (client.available()) {
-	// 	uint8_t buffer[128];
-	// 	int bytesRead = client.read(buffer, sizeof(buffer));
-	// 	file.write(buffer, bytesRead);
-	// }
+	// Wait for the response
+	while (client.connected()) {
+		String line = client.readStringUntil('\n');
+		if (line == "\r") {
+			Serial.println("Headers received");
+			break;
+		}
+	}
 
-	// Serial.println("Saved image to /test.png");
-	// file.close();
-
-	// client.stop();  // Close the connection
-	// WiFiClientSecure client;
-	// client.setInsecure();  // Use for testing. Prefer setCACert() for production.
-	// client.setTimeout(150000);  // Set timeout for connection
-	// HTTPClient http_client;
-
-	// String gpt_endpoint = "https://api.openai.com/v1/images/generations";
-	// String auth_header = "Bearer " + String(gpt_personal);
-
-	// // Check if the client can connect to the Gemini API.
-	// if (!http_client.begin(client, gpt_endpoint)) {
-	// 	Serial.println("Connection to API failed!");
-	// }
-
-	// // Create the request body for the Gemini API.
-	// http_client.addHeader("Content-Type", "application/json");
-	// http_client.addHeader("Authorization", auth_header);
-
-	// String requestBody = "{\"prompt\": \"" + prompt + "\", \"size\": \"1024x1792\", \"model\": \"dall-e-3\"}";
-	// Serial.println(requestBody);
-
-	// // Send the request to the Gemini API and check if the response is successful.
-	// int httpCode = http_client.POST(requestBody);
-	// if (httpCode != 200) {
-	// 	Serial.println("Failed to send request");
-	// 	Serial.println(httpCode);
-	// }
-
-	// Serial.println("about to get string");
-
-	// String response = http_client.getString();
-	// JsonDocument jsonDoc;
-	// deserializeJson(jsonDoc, response);
-
-	// Serial.println("printing");
-
-	// Serial.println(response);
+	// Read the response
+	String response = client.readString();
+	Serial.println(response);
+	JsonDocument jsonDoc;
+	deserializeJson(jsonDoc, response);
+	String stringRecommendations = jsonDoc["choices"][0]["message"]["content"];
+	Serial.println(stringRecommendations);
+	JsonDocument recommendations;
+	deserializeJson(recommendations, stringRecommendations);
+	for (int i=0; i<3; i++) {
+		String idea = recommendations["recommendations"][i]["idea"];
+		String imageURL = generateImage(idea);
+		saveURL(imageURL);
+	}
 }
