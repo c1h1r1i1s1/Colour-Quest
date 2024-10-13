@@ -39,7 +39,7 @@ void scanColour(int Level0, int Level1) {
 	colourScanIndex++;
 	TSC_Filtercolour(Level0, Level1);
 	// Scan diode for 0.1 seconds
-	timerAlarmWrite(timer, 100000, true);
+	timerAlarmWrite(timer, 200000, true);
 	timerAlarmEnable(timer);
 }
 
@@ -84,7 +84,7 @@ void setupColourSensor() {
 	attachInterrupt(digitalPinToInterrupt(OUT), TSC_Count, RISING);
 
 	// Set timer for 1 second (1000000 microseconds)
-	timerAlarmWrite(timer, 100, true);
+	timerAlarmWrite(timer, 100000, true);
 	timerAlarmEnable(timer);
 
 	delay(1000);
@@ -137,7 +137,7 @@ std::tuple<int, int, int> getColour() {
 			}
 		}
 
-		delay(350);
+		delay(650);
 	}
 
 	int r = 0;

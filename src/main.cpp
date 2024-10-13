@@ -20,6 +20,8 @@ std::tuple<int, int, int> scannedColour;
 void setup() {
 	Serial.begin(9600);
 
+	setupLED();
+
 	loadSettings();
 	if (wifiConnect(getSsid(), getPassword())) {
 		isWifiConnected = true;
@@ -28,12 +30,17 @@ void setup() {
 	// Create initial game object with various settings stored
 	gameObject.gameState = INIT;
 	gameObject.difficulty = stringToDifficulty(getDifficulty());
-	gameObject.gameMode = TEST;
+	if (isWifiConnected) {
+		gameObject.gameMode = COLLECTION;
+	} else {
+		gameObject.gameMode = GUESS;
+	}
+	// gameObject.gameMode = TEST;
 	gameObject.colourBlindMode = stringToCBM(getColourBlindMode());
 
 	setupWebServer(getDifficulty(), getColourBlindMode());
-	// setupLED();
-	// Need to set up the button device
+	setupLED();
+	// Need to set up the button device if using
 	setupLidSwitch();
 }
 
@@ -41,11 +48,10 @@ void loop() {
 
 	switch (gameObject.gameMode) {
 		case GUESS:
-			Serial.println("Game mode: Guess");
 			switch (gameObject.gameState) {
 				case INIT:
-					Serial.println("Starting game...");
-					while (!isLidClosedTemp()) {
+					Serial.println("Starting guess game...");
+					while (!isLidClosed()) {
 						Serial.println("Please close the lid!");
 						closeLidLights();
 					};
@@ -69,11 +75,11 @@ void loop() {
 					break;
 				case WAITING:
 					Serial.println("Waiting for user to find item");
-					while (isLidClosedTemp()) {
-						delay(1000);
+					while (isLidClosed()) {
+						delay(500);
 					}
-					while (!isLidClosedTemp()) {
-						delay(1000);
+					while (!isLidClosed()) {
+						delay(500);
 					}
 					gameObject.gameState = SCANNING;
 					break;
@@ -88,75 +94,78 @@ void loop() {
 					Serial.println(accuracy);
 
 					Serial.println("Open lid to restart game");
-					while (isLidClosedTemp()) {
-						delay(1000);
+					while (isLidClosed()) {
+						delay(500);
 					}
-					while (!isLidClosedTemp()) {
-						delay(1000);
-					}
+
 					gameObject.gameState = STARTUP;
 					break;
 			}
 			break;
 		case COLLECTION:
-			// switch (gameObject.gameState) {
-			// 	case INIT:
-			// 		Serial.println("Starting game...");
-			// 		while (!isLidClosedTemp()) {
-			// 			Serial.println("Please close the lid!");
-			// 			closeLidLights();
-			// 		};
+			switch (gameObject.gameState) {
+				case INIT:
+					Serial.println("Starting collection game...");
+					while (!isLidClosed()) {
+						Serial.println("Please close the lid!");
+						closeLidLights();
+					};
 
-			// 		// Set colour baseline
-			// 		setupColourSensor();
-			// 		gameObject.gameState = STARTUP;
-			// 		break;
-			// 	case STARTUP:
-			// 		resetColourFinder();
-			// 		gameObject.gameState = WAITING;
-			// 		Serial.println("Waiting for user to open lid.");
-			// 		break;
-			// 	case WAITING:
-			// 		waitingGlow();
-			// 		// Check for open
-			// 		if (!quickCheck()) {
-			// 			if (!isLidClosedTemp()) {
-			// 				gameObject.gameState = SCANNING;
-			// 				Serial.println("Waiting for user to close lid");
-			// 			}
-			// 		}
-			// 		break;
-			// 	case SCANNING:
-			// 		waitingGlow();
-			// 		if (quickCheck()) {
-			// 			if (isLidClosedTemp()) {
-			// 				Serial.println("Scanning item...");
-			// 				scannedColour = getColour();
-			// 				int r = std::get<0>(scannedColour), g = std::get<1>(scannedColour), b = std::get<2>(scannedColour);
-			// 				Serial.println("Adding colour to array");
-			// 				if (addColour(r, g, b)) {
-			// 					Serial.println("Colour finding finished");
-			// 					gameObject.gameState = PROCESSING;
-			// 				} else {
-			// 					gameObject.gameState = WAITING;
-			// 				}
-			// 			}
-			// 		}
-			// 		break;
-			// 	case PROCESSING:
-			// 		String foundColours = getFoundColours();
-			// 		genOutlines(foundColours);
-			// 		// Need to do the image saving stuff
-
-			// 		displayDynamicStandby();
-			// 		gameObject.gameState = STARTUP;
-			// 		break;
-			// }
-			// break;
+					// Set colour baseline
+					setupColourSensor();
+					gameObject.gameState = STARTUP;
+					break;
+				case STARTUP:
+					resetColourFinder();
+					gameObject.gameState = WAITING;
+					Serial.println("Waiting for user to open lid.");
+					break;
+				case WAITING:
+					waitingGlow();
+					// Check for open
+					if (!quickCheck()) {
+						if (!isLidClosed()) {
+							gameObject.gameState = SCANNING;
+							Serial.println("Waiting for user to close lid");
+						}
+					}
+					break;
+				case SCANNING:
+					waitingGlow();
+					if (quickCheck()) {
+						if (isLidClosed()) {
+							Serial.println("Scanning item...");
+							scannedColour = getColour();
+							int r = std::get<0>(scannedColour), g = std::get<1>(scannedColour), b = std::get<2>(scannedColour);
+							Serial.println("Adding colour to array");
+							if (addColour(r, g, b)) {
+								waitingGlow();
+								Serial.println("Colour finding finished");
+								gameObject.gameState = PROCESSING;
+							} else {
+								gameObject.gameState = WAITING;
+							}
+						}
+					}
+					break;
+				case PROCESSING:
+					// displayDynamicStandby();
+					// generatingStandby();
+					
+					String foundColours = getFoundColours();
+					createImages(foundColours);
+					
+					gameObject.gameState = STARTUP;
+					break;
+			}
+			break;
 		case TEST:
-			createImages("(139,0,0), (154,205,50), (139,69,19)");
-			delay(1000000);
-			gameObject.gameMode = GUESS;
+			Serial.println(quickCheck());
+			delay(500);
+
+			// createImages("(139,0,0), (154,205,50), (139,69,19)");
+			// delay(1000000);
+			// gameObject.gameMode = GUESS;
 			break;
 	}
 }

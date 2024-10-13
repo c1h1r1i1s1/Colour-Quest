@@ -25,8 +25,8 @@ bool isLidClosed() {
 }
 
 bool quickCheck() {
-	// return digitalRead(SWI_PIN);
-	int num = round(random(0, 2));
-	Serial.println(num);
-	return num;
+	return digitalRead(SWI_PIN);
+	// int num = round(random(0, 2));
+	// Serial.println(num);
+	// return num;
 }
