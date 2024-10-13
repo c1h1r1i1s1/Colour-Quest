@@ -23,8 +23,8 @@ void setup() {
 	loadSettings();
 	if (wifiConnect(getSsid(), getPassword())) {
 		isWifiConnected = true;
+		initialiseTime();
 	}
-
 	// Create initial game object with various settings stored
 	gameObject.gameState = INIT;
 	gameObject.difficulty = stringToDifficulty(getDifficulty());
@@ -152,9 +152,9 @@ void loop() {
 			// 		gameObject.gameState = STARTUP;
 			// 		break;
 			// }
-			break;
+			// break;
 		case TEST:
-			createImages("(139,0,0), (154,205,50), (255,255,102), (139,69,19)");
+			createImages("(139,0,0), (154,205,50), (139,69,19)");
 			delay(1000000);
 			gameObject.gameMode = GUESS;
 			break;

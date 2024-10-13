@@ -5,9 +5,11 @@ String colourBlindMode;
 String ssid;
 String password;
 
-bool checkTimeout(const char* timeStamp) {
+void initialiseTime() {
 	configTime(0, 0, "pool.ntp.org");
-    
+}
+
+bool checkTimeout(const char* timeStamp) {
     time_t now = time(nullptr);
     // struct tm *timeinfo = localtime(&now);
     
@@ -66,8 +68,6 @@ String getURLs() {
 
 void saveURL(String url) {
 	// First get timestamp as the link expires after 60 min
-	configTime(0, 0, "pool.ntp.org");
-    
     time_t now = time(nullptr);
     struct tm *timeinfo = localtime(&now);
     

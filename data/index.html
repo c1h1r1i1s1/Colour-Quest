@@ -27,6 +27,13 @@
 		<h1>Colour Quest Control Panel</h1>
 	</header>
 
+	<section class="drawings">
+		<h1>Colouring In Pictures</h1>
+		<br>
+		<h3>Based on recent found colours!</h3>
+		<ul id="urlList"></ul>
+	</section>
+
 	<section class="settings">
 		<h2>Settings</h2>
 
@@ -72,10 +79,6 @@
 		</form>
 	</section>
 
-	<section>
-		<ul id="urlList"></ul>
-	</section>
-
 	<footer>
 		<p>Colour Quest</p>
 	</footer>
@@ -97,17 +100,18 @@
 		})
 		.catch(error => console.error('Error fetching settings:', error));
 
-		// fetch('/get-image-urls')
-		// .then(response => response.json())
-		// .then(data => {
-		// 	const urlList = document.getElementById('urlList'); // Get the <ul> element
-		// 	urlList.innerHTML = ''; // Clear the list
-		// 	data.urls.forEach(urlObj => {
-		// 		const li = document.createElement('li');
-		// 		li.innerHTML = `<a href="${urlObj.url}" target="_blank">${urlObj.url}</a>`;
-		// 		urlList.appendChild(li);
-		// 	});
-		// }
+		fetch('/get-image-urls')
+		.then(response => response.json())
+		.then(data => {
+			const urlList = document.getElementById('urlList');
+			urlList.innerHTML = '';
+			data.urls.forEach(urlObj => {
+				const li = document.createElement('li');
+				li.innerHTML = `<a href="${urlObj.url}" target="_blank">Open Image</a>`;
+				// li.innerHTML = `<img src="${urlObj.url}" alt="${urlObj.url}" />`
+				urlList.appendChild(li);
+			});
+		});
 	</script>
 </body>
 </html>

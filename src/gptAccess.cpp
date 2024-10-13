@@ -52,7 +52,7 @@ String generateImage(String prompt) {
 
 	String url = "/v1/images/generations";
 	String auth_header = "Bearer " + String(gpt_personal);
-	String requestBody = "{\"prompt\": \"A colouring-in page for a child of: " + prompt + "\", \"size\": \"1024x1024\", \"model\": \"dall-e-3\"}";
+	String requestBody = "{\"prompt\": \"Create a simple line-illustration, suitable as a colouring-in page for children. The illustration should be of: " + prompt + "\", \"size\": \"1024x1024\", \"model\": \"dall-e-3\"}";
 
 	client.println("POST " + url + " HTTP/1.1");
 	client.println("Host: " + String(host));
@@ -79,8 +79,6 @@ String generateImage(String prompt) {
 	deserializeJson(jsonDoc, response);
 	String imageUrl = jsonDoc["data"][0]["url"];
 
-	// String imageUrl = "https://oaidalleapiprodscus.blob.core.windows.net/private/org-3RoLMbZBZSrDfeH4K8GlrGAS/user-EmIBImSaT42io42I320A4T7L/img-fyNFyDZWfXZN3zoEQt5HqBKa.png?st=2024-10-11T00%3A39%3A16Z&se=2024-10-11T02%3A39%3A16Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-10-10T23%3A11%3A24Z&ske=2024-10-11T23%3A11%3A24Z&sks=b&skv=2024-08-04&sig=qOmHCY/JrrI7Z1hfqQGe7te8V/sOUuxmTSZ64SgJHQI%3D";
-
 	return imageUrl;
 }
 
@@ -103,7 +101,7 @@ void createImages(String colours) {
 		"messages": [
 			{
 				"role": "system",
-				"content": "You are tasked with recommending things for a child to draw based on user-provided RGB colours. You will be given a list of RGB colours and shall return 3 image options in the json format provided, saying nothing else. They could be scenes, things, animals etc. Please respond in a simplistic manner without mentioning any of the colours, just a description of the drawing."
+				"content": "You are tasked with recommending things for a child to draw based on user-provided RGB colours. You will be given a list of RGB colours and shall return 3 image options in the json format provided, saying nothing else. They could be scenes, things, animals etc. Please respond in a simplistic manner without mentioning any colours and using minimal adjectives. DO NOT MENTION THE INTENDED COLOURS OF THE ELEMENTS OF THE DRAWING. Just list the elements of the drawing WITHOUT REFERENCING THEIR COLOUR."
 			},
 			{
 				"role": "user",
