@@ -7,6 +7,7 @@
 #include "ledController.h"
 #include "lidSwitch.h"
 #include "gptAccess.h"
+#include "button.h"
 
 enum GameState {
 	INIT,

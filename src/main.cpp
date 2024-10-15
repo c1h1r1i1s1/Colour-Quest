@@ -27,27 +27,39 @@ void setup() {
 		isWifiConnected = true;
 		initialiseTime();
 	}
+
 	// Create initial game object with various settings stored
 	gameObject.gameState = INIT;
 	gameObject.difficulty = stringToDifficulty(getDifficulty());
-	if (isWifiConnected) {
-		gameObject.gameMode = COLLECTION;
-	} else {
-		gameObject.gameMode = GUESS;
-	}
-	// gameObject.gameMode = TEST;
+	// if (isWifiConnected) {
+	// 	gameObject.gameMode = COLLECTION;
+	// } else {
+	// 	gameObject.gameMode = GUESS;
+	// }
+	gameObject.gameMode = GUESS;
 	gameObject.colourBlindMode = stringToCBM(getColourBlindMode());
 
 	setupWebServer(getDifficulty(), getColourBlindMode());
 	setupLED();
-	// Need to set up the button device if using
 	setupLidSwitch();
+	setupButton();
 }
 
 void loop() {
+	int buttonState = checkPress();
+	if (buttonState == 1) {
+		gameObject.gameState = STARTUP;
+	}
 
 	switch (gameObject.gameMode) {
 		case GUESS:
+			if (buttonState == 2 && isWifiConnected) {
+				gameObject.gameMode = COLLECTION;
+				changeGameMode();
+				resetColourFinder();
+				break;
+			}
+
 			switch (gameObject.gameState) {
 				case INIT:
 					Serial.println("Starting guess game...");
@@ -76,11 +88,51 @@ void loop() {
 				case WAITING:
 					Serial.println("Waiting for user to find item");
 					while (isLidClosed()) {
+						buttonState = checkPress();
+						if (buttonState == 1) {
+							gameObject.gameState = STARTUP;
+							break;
+						} else if (buttonState == 2) {
+							gameObject.gameMode = COLLECTION;
+							changeGameMode();
+							resetColourFinder();
+							break;
+						}
 						delay(500);
 					}
+					if (buttonState == 1) {
+						gameObject.gameState = STARTUP;
+						break;
+					} else if (buttonState == 2) {
+						gameObject.gameMode = COLLECTION;
+						changeGameMode();
+						resetColourFinder();
+						break;
+					}
+
 					while (!isLidClosed()) {
+						buttonState = checkPress();
+						if (buttonState == 1) {
+							gameObject.gameState = STARTUP;
+							break;
+						} else if (buttonState == 2) {
+							gameObject.gameMode = COLLECTION;
+							changeGameMode();
+							resetColourFinder();
+							break;
+						}
 						delay(500);
 					}
+					if (buttonState == 1) {
+						gameObject.gameState = STARTUP;
+						break;
+					} else if (buttonState == 2) {
+						gameObject.gameMode = COLLECTION;
+						changeGameMode();
+						resetColourFinder();
+						break;
+					}
+
 					gameObject.gameState = SCANNING;
 					break;
 				case SCANNING:
@@ -95,6 +147,13 @@ void loop() {
 
 					Serial.println("Open lid to restart game");
 					while (isLidClosed()) {
+						buttonState = checkPress();
+						if (buttonState == 2) {
+							gameObject.gameMode = COLLECTION;
+							changeGameMode();
+							resetColourFinder();
+							break;
+						}
 						delay(500);
 					}
 
@@ -103,6 +162,13 @@ void loop() {
 			}
 			break;
 		case COLLECTION:
+			if (buttonState == 2) {
+				gameObject.gameState = STARTUP;
+				gameObject.gameMode = GUESS;
+				changeGameMode();
+				break;
+			}
+
 			switch (gameObject.gameState) {
 				case INIT:
 					Serial.println("Starting collection game...");
@@ -132,6 +198,18 @@ void loop() {
 					break;
 				case SCANNING:
 					waitingGlow();
+					buttonState = checkPress();
+					if (buttonState == 1) {
+						gameObject.gameState = STARTUP;
+						resetColourFinder();
+						break;
+					} else if (buttonState == 2) {
+						gameObject.gameState = STARTUP;
+						gameObject.gameMode = GUESS;
+						changeGameMode();
+						break;
+					}
+
 					if (quickCheck()) {
 						if (isLidClosed()) {
 							Serial.println("Scanning item...");
@@ -149,9 +227,6 @@ void loop() {
 					}
 					break;
 				case PROCESSING:
-					// displayDynamicStandby();
-					// generatingStandby();
-					
 					String foundColours = getFoundColours();
 					createImages(foundColours);
 					
@@ -160,12 +235,8 @@ void loop() {
 			}
 			break;
 		case TEST:
-			Serial.println(quickCheck());
-			delay(500);
-
-			// createImages("(139,0,0), (154,205,50), (139,69,19)");
-			// delay(1000000);
-			// gameObject.gameMode = GUESS;
+			Serial.println(checkPress());
+			delay(300);
 			break;
 	}
 }

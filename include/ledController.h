@@ -17,3 +17,5 @@ void waitingGlow();
 bool addColour(int r, int g, int b);
 void resetColourFinder();
 String getFoundColours();
+
+void changeGameMode();
