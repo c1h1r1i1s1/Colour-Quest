@@ -14,4 +14,7 @@
 #define SWI_PIN 4
 
 // Main Button
-#define BT_PIN 2
+#define BT_PIN 3
+
+// Speaker
+#define SPEAKER_PIN 2
