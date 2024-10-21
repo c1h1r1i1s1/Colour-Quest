@@ -1,23 +1,8 @@
-#include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
-
-// Replace with your Wi-Fi credentials and API key
-const char* ssid = "YOUR_SSID";
-const char* password = "YOUR_PASSWORD";
-const char* apiKey = "YOUR_GOOGLE_TTS_API_KEY";
+#include "api-key.h"
 
 void setup() {
-  Serial.begin(115200);
-  
-  // Connect to Wi-Fi
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
-  }
-  Serial.println("Connected to WiFi!");
-
   // Prepare the request to Google TTS API
   WiFiClientSecure client;
   HTTPClient https;
@@ -27,8 +12,8 @@ void setup() {
   String url = "https://texttospeech.googleapis.com/v1/text:synthesize?key=" + String(apiKey);
   
   String jsonPayload = "{\"input\":{\"text\":\"Hello, how are you?\"},"
-                       "\"voice\":{\"languageCode\":\"en-US\",\"ssmlGender\":\"FEMALE\"},"
-                       "\"audioConfig\":{\"audioEncoding\":\"MP3\"}}";
+        "\"voice\":{\"languageCode\":\"en-US\",\"ssmlGender\":\"FEMALE\"},"
+        "\"audioConfig\":{\"audioEncoding\":\"MP3\"}}";
   
   https.begin(client, url);
   https.addHeader("Content-Type", "application/json");
