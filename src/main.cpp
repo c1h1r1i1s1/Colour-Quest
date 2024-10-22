@@ -19,6 +19,7 @@ std::tuple<int, int, int> scannedColour;
 
 void setup() {
 	Serial.begin(9600);
+	rtc_gpio_deinit(GPIO_NUM_12); // In case of sleep, re enable pin as digital
 
 	setupLED();
 
@@ -36,7 +37,7 @@ void setup() {
 	// } else {
 	// 	gameObject.gameMode = GUESS;
 	// }
-	gameObject.gameMode = GUESS;
+	gameObject.gameMode = TEST;
 	gameObject.colourBlindMode = stringToCBM(getColourBlindMode());
 
 	setupWebServer(getDifficulty(), getColourBlindMode());
@@ -45,10 +46,19 @@ void setup() {
 	setupButton();
 }
 
+void sleep() {
+	rtc_gpio_pulldown_en(GPIO_NUM_12);
+	esp_sleep_enable_ext0_wakeup(GPIO_NUM_12, 1);
+	Serial.println("Sleeping");
+	esp_deep_sleep_start();
+}
+
 void loop() {
 	int buttonState = checkPress();
 	if (buttonState == 1) {
 		gameObject.gameState = STARTUP;
+	} else if (buttonState == 3) {
+		sleep();
 	}
 
 	switch (gameObject.gameMode) {
@@ -97,18 +107,20 @@ void loop() {
 							changeGameMode();
 							resetColourFinder();
 							break;
+						} else if (buttonState == 3) {
+							sleep();
 						}
 						delay(500);
 					}
-					if (buttonState == 1) {
-						gameObject.gameState = STARTUP;
-						break;
-					} else if (buttonState == 2) {
-						gameObject.gameMode = COLLECTION;
-						changeGameMode();
-						resetColourFinder();
-						break;
-					}
+					// if (buttonState == 1) {
+					// 	gameObject.gameState = STARTUP;
+					// 	break;
+					// } else if (buttonState == 2) {
+					// 	gameObject.gameMode = COLLECTION;
+					// 	changeGameMode();
+					// 	resetColourFinder();
+					// 	break;
+					// }
 
 					while (!isLidClosed()) {
 						buttonState = checkPress();
@@ -120,18 +132,20 @@ void loop() {
 							changeGameMode();
 							resetColourFinder();
 							break;
+						} else if (buttonState == 3) {
+							sleep();
 						}
 						delay(500);
 					}
-					if (buttonState == 1) {
-						gameObject.gameState = STARTUP;
-						break;
-					} else if (buttonState == 2) {
-						gameObject.gameMode = COLLECTION;
-						changeGameMode();
-						resetColourFinder();
-						break;
-					}
+					// if (buttonState == 1) {
+					// 	gameObject.gameState = STARTUP;
+					// 	break;
+					// } else if (buttonState == 2) {
+					// 	gameObject.gameMode = COLLECTION;
+					// 	changeGameMode();
+					// 	resetColourFinder();
+					// 	break;
+					// }
 
 					gameObject.gameState = SCANNING;
 					break;
@@ -153,6 +167,8 @@ void loop() {
 							changeGameMode();
 							resetColourFinder();
 							break;
+						} else if (buttonState == 3) {
+							sleep();
 						}
 						delay(500);
 					}
@@ -208,6 +224,8 @@ void loop() {
 						gameObject.gameMode = GUESS;
 						changeGameMode();
 						break;
+					} else if (buttonState == 3) {
+						sleep();
 					}
 
 					if (quickCheck()) {
@@ -228,15 +246,18 @@ void loop() {
 					break;
 				case PROCESSING:
 					String foundColours = getFoundColours();
-					createImages(foundColours);
+					String recommendations = whatToDraw(foundColours);
+					genTTS(recommendations);
 					
 					gameObject.gameState = STARTUP;
 					break;
 			}
 			break;
 		case TEST:
-			Serial.println(checkPress());
-			delay(300);
+			// rtc_gpio_pulldown_en(GPIO_NUM_12);
+			// esp_sleep_enable_ext0_wakeup(GPIO_NUM_12, 1);
+			// Serial.println("Sleeping");
+			// esp_deep_sleep_start();
 			break;
 	}
 }
