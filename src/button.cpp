@@ -16,8 +16,8 @@ bool doublePressDetected = false;
 bool longPressDetected = false;
 
 void setupButton() {
-	pinMode(BUTTON_PIN, INPUT);
-	debouncer.attach(BUTTON_PIN);
+	pinMode(BT_PIN, INPUT);
+	debouncer.attach(BT_PIN);
 	debouncer.interval(DEBOUNCE_TIME);
 }
 

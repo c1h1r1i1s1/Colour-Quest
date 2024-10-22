@@ -6,8 +6,11 @@
 #include "wifiCon.h"
 #include "ledController.h"
 #include "lidSwitch.h"
-#include "gptAccess.h"
+// #include "gptAccess.h"
+#include "gemini.h"
+#include "textToSpeech.h"
 #include "button.h"
+#include "driver/rtc_io.h"
 
 enum GameState {
 	INIT,

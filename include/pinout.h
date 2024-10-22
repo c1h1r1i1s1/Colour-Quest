@@ -1,5 +1,5 @@
 // LED ring
-#define LED_PIN 12
+#define LED_PIN 3
 
 // Colour sensor
 #define S0 25
@@ -14,7 +14,7 @@
 #define SWI_PIN 4
 
 // Main Button
-#define BT_PIN 3
+#define BT_PIN 12
 
 // Speaker
 #define SPEAKER_PIN 2
