@@ -2,7 +2,7 @@
 #define LED_PIN 3
 
 // Colour sensor
-#define S0 25
+#define S0 2
 #define S1 26
 #define S2 0
 #define S3 14
@@ -17,4 +17,4 @@
 #define BT_PIN 12
 
 // Speaker
-#define SPEAKER_PIN 2
+#define SPEAKER_PIN 25
