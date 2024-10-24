@@ -1,5 +1,6 @@
 #include <Adafruit_NeoPixel.h>
 #include "pinout.h"
+#include "fileAccess.h"
 
 void setEasyColour();
 

@@ -21,9 +21,9 @@ void setup() {
 	Serial.begin(9600);
 	rtc_gpio_deinit(GPIO_NUM_12); // In case of sleep, re enable pin as digital
 
+	loadSettings();
 	setupLED();
 
-	loadSettings();
 	if (wifiConnect(getSsid(), getPassword())) {
 		isWifiConnected = true;
 		initialiseTime();
@@ -37,7 +37,7 @@ void setup() {
 	// } else {
 	// 	gameObject.gameMode = GUESS;
 	// }
-	gameObject.gameMode = TEST;
+	gameObject.gameMode = GUESS;
 	gameObject.colourBlindMode = stringToCBM(getColourBlindMode());
 
 	setupWebServer(getDifficulty(), getColourBlindMode());
@@ -211,13 +211,25 @@ void loop() {
 							Serial.println("Waiting for user to close lid");
 						}
 					}
+					if (buttonState == 1) {
+						Serial.println("Colour finding finished");
+						gameObject.gameState = PROCESSING;
+						break;
+					} else if (buttonState == 2) {
+						gameObject.gameState = STARTUP;
+						gameObject.gameMode = GUESS;
+						changeGameMode();
+						break;
+					} else if (buttonState == 3) {
+						sleep();
+					}
 					break;
 				case SCANNING:
 					waitingGlow();
 					buttonState = checkPress();
 					if (buttonState == 1) {
-						gameObject.gameState = STARTUP;
-						resetColourFinder();
+						Serial.println("Colour finding finished");
+						gameObject.gameState = PROCESSING;
 						break;
 					} else if (buttonState == 2) {
 						gameObject.gameState = STARTUP;

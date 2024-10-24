@@ -2,6 +2,9 @@
 
 // NeoPixel configuration
 #define NUMPIXELS 24
+#define MAXCOLOURS 6
+
+String colourBlindModeLED = "";
 
 Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -43,13 +46,6 @@ void setHardColour() {
 
 // Calculate similarity percentage between reference and input colour
 int calculateSimilarity(int r, int g, int b) {
-	Serial.println(r);
-	Serial.println(g);
-	Serial.println(b);
-	Serial.println();
-	Serial.println(refR);
-	Serial.println(refG);
-	Serial.println(refB);
 
 	// Euclidian first
 	float diffR = pow(refR - r, 2);
@@ -76,12 +72,24 @@ int calculateSimilarity(int r, int g, int b) {
 
 	float similarity = 60*eSimilarity/100.00 + 40*hSimilarity/100.00;
 
-	Serial.println(eSimilarity);
-	Serial.println(hSimilarity);
-	Serial.println(similarity);
-	Serial.println();
-
 	return static_cast<int>(similarity);
+}
+
+int adjustAndCalculateSimilarity(int r, int g, int b) {
+	if (colourBlindModeLED == "NONE") {
+		return calculateSimilarity(r, g, b);
+	} else if (colourBlindModeLED == "PROTANOPIA") {
+		int adjustedR = refR > 100 ? (r * 2) : r+50; // Reduces the impact of red
+		return calculateSimilarity(adjustedR, g, b);
+	} else if (colourBlindModeLED == "DEUTERANOPIA") {
+		int adjustedG = refG > 100 ? (g * 2) : g+50; // Reduces the impact of green
+		return calculateSimilarity(r, adjustedG, b);
+	} else if (colourBlindModeLED == "TRITANOPIA") {
+		int adjustedB = refB > 100 ? (b * 2) : b+50; // Reduces the impact of blue
+		return calculateSimilarity(r, g, adjustedB);
+	} else {
+		return calculateSimilarity(r, g, b);
+	}
 }
 
 // Get colour based on similarity percentage
@@ -115,18 +123,21 @@ void displayDynamicStandby() {
 	}
 }
 
-uint32_t foundColours[3] = {
+uint32_t foundColours[MAXCOLOURS] = {
+	pixels.Color(0, 0, 0),
+	pixels.Color(0, 0, 0),
+	pixels.Color(0, 0, 0),
 	pixels.Color(0, 0, 0),
 	pixels.Color(0, 0, 0),
 	pixels.Color(0, 0, 0)
 };
 
-int colourSection = 0;
+int numColoursFound = 0;
 float pulseValue = 0;
 bool pulseUp = true;
 
 void resetColourFinder() {
-	colourSection = 0;
+	numColoursFound = 0;
 }
 
 uint32_t Wheel(byte WheelPos) {
@@ -156,8 +167,8 @@ void changeGameMode() {
 }
 
 bool addColour(int r, int g, int b) {
-	foundColours[colourSection++] = pixels.Color(r, g, b);
-	if (colourSection == 3) {
+	foundColours[numColoursFound++] = pixels.Color(r, g, b);
+	if (numColoursFound == MAXCOLOURS) {
 		return 1;
 	} else {
 		return 0;
@@ -167,7 +178,7 @@ bool addColour(int r, int g, int b) {
 String getFoundColours() {
 	String rgbString = "";
   
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < MAXCOLOURS; i++) {
 		uint32_t colour = foundColours[i];
 
 		// Extract red, green, and blue components from the 32-bit color value
@@ -178,7 +189,7 @@ String getFoundColours() {
 		// Append the RGB values to the string
 		rgbString += "(" + String(r) + "," + String(g) + "," + String(b) + ")";
 
-		if (i < 2) {
+		if (i < MAXCOLOURS-1) {
 			rgbString += ", ";
 		}
 	}
@@ -195,25 +206,38 @@ void waitingGlow() {
 		}
 	} else {
 		pulseValue -= 0.001;
-		if (pulseValue <= 0.0) {
-			pulseValue = 0.0;
+		if (pulseValue <= 0.4) {
+			pulseValue = 0.4;
 			pulseUp = true;
 		}
 	}
 
 	uint8_t brightness = (uint8_t)(pulseValue * 255);
 
-	// Pulse the sections white that aren't filled with colour.
-	for (int i = colourSection * (NUMPIXELS / 3); i < NUMPIXELS; i++) {
-		pixels.setPixelColor(i, pixels.Color(brightness, brightness, brightness));
-	}
-
-	// Fill the found colour sections
-	int ledsPerSection = NUMPIXELS / 3;
-	for (int i = 0; i < colourSection; i++) {
-		for (int j = i * ledsPerSection; j < (i + 1) * ledsPerSection; j++) {
-			pixels.setPixelColor(j, foundColours[i]);
+	if (numColoursFound == 0) {
+		// Pulse white
+		for (int i = 0; i < NUMPIXELS; i++) {
+			pixels.setPixelColor(i, pixels.Color(brightness, brightness, brightness));
 		}
+	} else {
+		for (int i=0; i<numColoursFound; i++) { // Iterate through the number of colours found
+			for (int j = round(i * (NUMPIXELS / numColoursFound)); i < round(i+1 * (NUMPIXELS / numColoursFound)); i++) {
+				pixels.setPixelColor(j, foundColours[i]);
+			}
+		}
+
+		// // Pulse the sections white that aren't filled with colour.
+		// for (int i = numColoursFound * (NUMPIXELS / numColoursFound); i < NUMPIXELS; i++) {
+		// 	pixels.setPixelColor(i, pixels.Color(brightness, brightness, brightness));
+		// }
+
+		// // Fill the found colour sections
+		// int ledsPerSection = NUMPIXELS / 3;
+		// for (int i = 0; i < numColoursFound; i++) {
+		// 	for (int j = i * ledsPerSection; j < (i + 1) * ledsPerSection; j++) {
+		// 		pixels.setPixelColor(j, foundColours[i]);
+		// 	}
+		// }
 	}
 
 	pixels.show();
@@ -238,10 +262,11 @@ void closeLidLights() {
 void setupLED() {
 	pixels.begin(); // Initialize NeoPixel
 	displayDynamicStandby();
+	colourBlindModeLED = getColourBlindMode();
 }
 
 int compareColour(int r, int g, int b) {
-	int accuracy = calculateSimilarity(r, g, b);
+	int accuracy = adjustAndCalculateSimilarity(r, g, b);
 	displayBasedOnAccuracy(accuracy);
 	return accuracy;
 }

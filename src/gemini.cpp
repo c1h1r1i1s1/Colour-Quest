@@ -1,7 +1,7 @@
 #include "gemini.h"
 
 String gemini_address = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + String(api_key);
-String text_request_base = "I have 3 coloured pencils of the following rgb values: ";
+String text_request_base = "I have a number of coloured pencils of the following rgb values: ";
 String text_request_top = ". What could a child draw using these colours? Please recommend 2 simple things to draw based on these colours, responding as if you were talking to a young child. They could be scenes, things, animals, etc. ";
 
 String whatToDraw(String rgbInput) {
