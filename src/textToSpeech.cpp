@@ -35,9 +35,13 @@ void genTTS(String text) {
 
 	JsonDocument doc;
 	doc["input"]["text"] = text;
-	doc["voice"]["languageCode"] = "en-US";
-	doc["voice"]["name"] = "en-US-Wavenet-D";
+	doc["voice"]["languageCode"] = "en-AU";
+	doc["voice"]["name"] = "en-AU-Neural2-B";
 	doc["audioConfig"]["audioEncoding"] = "MP3";
+	JsonArray effectsArray = doc["audioConfig"].createNestedArray("effectsProfileId");
+	effectsArray.add("wearable-class-device");
+	doc["audioConfig"]["pitch"] = 2.8;
+	doc["audioConfig"]["speakingRate"] = 0.89;
 	String requestBody;
 	serializeJson(doc, requestBody);
 

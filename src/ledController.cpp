@@ -11,6 +11,13 @@ Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 // Reference colour (default: white)
 int refR = 255, refG = 255, refB = 255;
 
+void turnOffLEDs() {
+	for(int i = 0; i < NUMPIXELS; i++) {
+		pixels.setPixelColor(i, pixels.Color(0, 0, 0));
+	}
+	pixels.show();
+}
+
 void updateRingColours() {
 	for(int i = 0; i < NUMPIXELS; i++) {
 		pixels.setPixelColor(i, pixels.Color(refR, refG, refB));
@@ -178,7 +185,7 @@ bool addColour(int r, int g, int b) {
 String getFoundColours() {
 	String rgbString = "";
   
-	for (int i = 0; i < MAXCOLOURS; i++) {
+	for (int i = 0; i < numColoursFound; i++) {
 		uint32_t colour = foundColours[i];
 
 		// Extract red, green, and blue components from the 32-bit color value
@@ -189,7 +196,7 @@ String getFoundColours() {
 		// Append the RGB values to the string
 		rgbString += "(" + String(r) + "," + String(g) + "," + String(b) + ")";
 
-		if (i < MAXCOLOURS-1) {
+		if (i < numColoursFound-1) {
 			rgbString += ", ";
 		}
 	}
@@ -221,23 +228,10 @@ void waitingGlow() {
 		}
 	} else {
 		for (int i=0; i<numColoursFound; i++) { // Iterate through the number of colours found
-			for (int j = round(i * (NUMPIXELS / numColoursFound)); i < round(i+1 * (NUMPIXELS / numColoursFound)); i++) {
+			for (int j = round(i * (NUMPIXELS / numColoursFound)); j < round((i+1) * (NUMPIXELS / numColoursFound)); j++) {
 				pixels.setPixelColor(j, foundColours[i]);
 			}
 		}
-
-		// // Pulse the sections white that aren't filled with colour.
-		// for (int i = numColoursFound * (NUMPIXELS / numColoursFound); i < NUMPIXELS; i++) {
-		// 	pixels.setPixelColor(i, pixels.Color(brightness, brightness, brightness));
-		// }
-
-		// // Fill the found colour sections
-		// int ledsPerSection = NUMPIXELS / 3;
-		// for (int i = 0; i < numColoursFound; i++) {
-		// 	for (int j = i * ledsPerSection; j < (i + 1) * ledsPerSection; j++) {
-		// 		pixels.setPixelColor(j, foundColours[i]);
-		// 	}
-		// }
 	}
 
 	pixels.show();
@@ -261,6 +255,7 @@ void closeLidLights() {
 
 void setupLED() {
 	pixels.begin(); // Initialize NeoPixel
+	pinMode(LED_PIN, OUTPUT);
 	displayDynamicStandby();
 	colourBlindModeLED = getColourBlindMode();
 }

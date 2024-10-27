@@ -19,10 +19,11 @@ std::tuple<int, int, int> scannedColour;
 
 void setup() {
 	Serial.begin(9600);
-	rtc_gpio_deinit(GPIO_NUM_12); // In case of sleep, re enable pin as digital
 
 	loadSettings();
+	Serial.println("Loaded Settings");
 	setupLED();
+	Serial.println("Setup LED");
 
 	if (wifiConnect(getSsid(), getPassword())) {
 		isWifiConnected = true;
@@ -41,15 +42,16 @@ void setup() {
 	gameObject.colourBlindMode = stringToCBM(getColourBlindMode());
 
 	setupWebServer(getDifficulty(), getColourBlindMode());
-	setupLED();
 	setupLidSwitch();
 	setupButton();
 }
 
 void sleep() {
-	rtc_gpio_pulldown_en(GPIO_NUM_12);
-	esp_sleep_enable_ext0_wakeup(GPIO_NUM_12, 1);
+	rtc_gpio_pulldown_en(GPIO_NUM_4);
+	esp_sleep_enable_ext0_wakeup(GPIO_NUM_4, 0);
+	turnOffLEDs();
 	Serial.println("Sleeping");
+	delay(100);
 	esp_deep_sleep_start();
 }
 
@@ -110,17 +112,10 @@ void loop() {
 						} else if (buttonState == 3) {
 							sleep();
 						}
-						delay(500);
 					}
-					// if (buttonState == 1) {
-					// 	gameObject.gameState = STARTUP;
-					// 	break;
-					// } else if (buttonState == 2) {
-					// 	gameObject.gameMode = COLLECTION;
-					// 	changeGameMode();
-					// 	resetColourFinder();
-					// 	break;
-					// }
+					if (buttonState > 0) {
+						break;
+					}
 
 					while (!isLidClosed()) {
 						buttonState = checkPress();
@@ -135,17 +130,10 @@ void loop() {
 						} else if (buttonState == 3) {
 							sleep();
 						}
-						delay(500);
 					}
-					// if (buttonState == 1) {
-					// 	gameObject.gameState = STARTUP;
-					// 	break;
-					// } else if (buttonState == 2) {
-					// 	gameObject.gameMode = COLLECTION;
-					// 	changeGameMode();
-					// 	resetColourFinder();
-					// 	break;
-					// }
+					if (buttonState > 0) {
+						break;
+					}
 
 					gameObject.gameState = SCANNING;
 					break;
@@ -170,7 +158,9 @@ void loop() {
 						} else if (buttonState == 3) {
 							sleep();
 						}
-						delay(500);
+					}
+					if (buttonState > 0) {
+						break;
 					}
 
 					gameObject.gameState = STARTUP;
@@ -245,6 +235,11 @@ void loop() {
 							Serial.println("Scanning item...");
 							scannedColour = getColour();
 							int r = std::get<0>(scannedColour), g = std::get<1>(scannedColour), b = std::get<2>(scannedColour);
+							Serial.print(r);
+							Serial.print(" ");
+							Serial.print(g);
+							Serial.print(" ");
+							Serial.println(b);
 							Serial.println("Adding colour to array");
 							if (addColour(r, g, b)) {
 								waitingGlow();
@@ -258,7 +253,9 @@ void loop() {
 					break;
 				case PROCESSING:
 					String foundColours = getFoundColours();
+					Serial.println(foundColours);
 					String recommendations = whatToDraw(foundColours);
+					Serial.println(recommendations);
 					genTTS(recommendations);
 					
 					gameObject.gameState = STARTUP;
@@ -266,10 +263,9 @@ void loop() {
 			}
 			break;
 		case TEST:
-			// rtc_gpio_pulldown_en(GPIO_NUM_12);
-			// esp_sleep_enable_ext0_wakeup(GPIO_NUM_12, 1);
-			// Serial.println("Sleeping");
-			// esp_deep_sleep_start();
+			Serial.println(isLidClosed());
+			setHardColour();
+			delay(5000);
 			break;
 	}
 }

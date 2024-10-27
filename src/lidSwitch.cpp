@@ -4,13 +4,6 @@ void setupLidSwitch() {
 	pinMode(SWI_PIN, INPUT);
 }
 
-// Need to write section on lid reading
-bool isLidClosedTemp() {
-	int num = round(random(0, 2));
-	Serial.println(num);
-	return num;
-}
-
 bool doubleCheck(bool previous) {
 	delay(50);
 	if (digitalRead(SWI_PIN) == previous) {
@@ -26,7 +19,4 @@ bool isLidClosed() {
 
 bool quickCheck() {
 	return digitalRead(SWI_PIN);
-	// int num = round(random(0, 2));
-	// Serial.println(num);
-	// return num;
 }
