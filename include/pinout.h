@@ -1,5 +1,5 @@
 // LED ring
-#define LED_PIN 21
+#define LED_PIN 21 // SDA
 
 // Colour sensor
 #define S0 2 // D9
@@ -7,8 +7,8 @@
 #define S2 0 // D5
 #define S3 14 // D6
 
-#define OUT 13 // D7 13
-#define OE 12 // D10 used to be 17, now 12 D13
+#define OUT 13 // D7
+#define OE 12 // D13
 #define LED 16 // D11
 
 // Lid Switch
