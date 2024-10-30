@@ -4,6 +4,8 @@
 
 void turnOffLEDs();
 
+void loading();
+
 void setEasyColour();
 
 void setHardColour();

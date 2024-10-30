@@ -16,6 +16,7 @@ ColourBlindMode stringToCBM(String modeStr) {
 
 bool isWifiConnected = false;
 std::tuple<int, int, int> scannedColour;
+int buttonStateMain = 0;
 
 void setup() {
 	Serial.begin(9600);
@@ -27,17 +28,11 @@ void setup() {
 
 	if (wifiConnect(getSsid(), getPassword())) {
 		isWifiConnected = true;
-		initialiseTime();
 	}
 
 	// Create initial game object with various settings stored
 	gameObject.gameState = INIT;
 	gameObject.difficulty = stringToDifficulty(getDifficulty());
-	// if (isWifiConnected) {
-	// 	gameObject.gameMode = COLLECTION;
-	// } else {
-	// 	gameObject.gameMode = GUESS;
-	// }
 	gameObject.gameMode = GUESS;
 	gameObject.colourBlindMode = stringToCBM(getColourBlindMode());
 
@@ -49,32 +44,27 @@ void setup() {
 void sleep() {
 	rtc_gpio_pulldown_en(GPIO_NUM_4);
 	esp_sleep_enable_ext0_wakeup(GPIO_NUM_4, 0);
+	changeGameMode();
 	turnOffLEDs();
 	Serial.println("Sleeping");
-	delay(100);
+	delay(200);
 	esp_deep_sleep_start();
 }
 
 void loop() {
-	int buttonState = checkPress();
-	if (buttonState == 1) {
-		gameObject.gameState = STARTUP;
-	} else if (buttonState == 3) {
-		sleep();
-	}
 
 	switch (gameObject.gameMode) {
 		case GUESS:
-			if (buttonState == 2 && isWifiConnected) {
-				gameObject.gameMode = COLLECTION;
-				changeGameMode();
-				resetColourFinder();
-				break;
-			}
 
 			switch (gameObject.gameState) {
 				case INIT:
 					Serial.println("Starting guess game...");
+					if (isLidClosed()) {
+						while (isLidClosed()) {
+							Serial.println("Please clear mouth!");
+							closeLidLights();
+						};
+					}
 					while (!isLidClosed()) {
 						Serial.println("Please close the lid!");
 						closeLidLights();
@@ -99,39 +89,42 @@ void loop() {
 					break;
 				case WAITING:
 					Serial.println("Waiting for user to find item");
+					buttonStateMain = checkPress();
 					while (isLidClosed()) {
-						buttonState = checkPress();
-						if (buttonState == 1) {
+						if (buttonStateMain == 1) {
 							gameObject.gameState = STARTUP;
 							break;
-						} else if (buttonState == 2) {
+						} else if (buttonStateMain == 2) {
 							gameObject.gameMode = COLLECTION;
+							gameObject.gameState = STARTUP;
 							changeGameMode();
 							resetColourFinder();
 							break;
-						} else if (buttonState == 3) {
+						} else if (buttonStateMain == 3) {
 							sleep();
 						}
+						buttonStateMain = checkPress();
 					}
-					if (buttonState > 0) {
+					if (buttonStateMain > 0) {
 						break;
 					}
 
 					while (!isLidClosed()) {
-						buttonState = checkPress();
-						if (buttonState == 1) {
+						buttonStateMain = checkPress();
+						if (buttonStateMain == 1) {
 							gameObject.gameState = STARTUP;
 							break;
-						} else if (buttonState == 2) {
+						} else if (buttonStateMain == 2) {
 							gameObject.gameMode = COLLECTION;
+							gameObject.gameState = STARTUP;
 							changeGameMode();
 							resetColourFinder();
 							break;
-						} else if (buttonState == 3) {
+						} else if (buttonStateMain == 3) {
 							sleep();
 						}
 					}
-					if (buttonState > 0) {
+					if (buttonStateMain > 0) {
 						break;
 					}
 
@@ -148,18 +141,27 @@ void loop() {
 					Serial.println(accuracy);
 
 					Serial.println("Open lid to restart game");
+					unsigned long startTime = millis();
 					while (isLidClosed()) {
-						buttonState = checkPress();
-						if (buttonState == 2) {
+						if (millis() - startTime >= 3000) {
+							gameObject.gameState = STARTUP;
+							break;
+						}
+						buttonStateMain = checkPress();
+						if (buttonStateMain == 1) {
+							gameObject.gameState = STARTUP;
+							break;
+						} else if (buttonStateMain == 2) {
 							gameObject.gameMode = COLLECTION;
+							gameObject.gameState = STARTUP;
 							changeGameMode();
 							resetColourFinder();
 							break;
-						} else if (buttonState == 3) {
+						} else if (buttonStateMain == 3) {
 							sleep();
 						}
 					}
-					if (buttonState > 0) {
+					if (buttonStateMain > 0) {
 						break;
 					}
 
@@ -168,12 +170,6 @@ void loop() {
 			}
 			break;
 		case COLLECTION:
-			if (buttonState == 2) {
-				gameObject.gameState = STARTUP;
-				gameObject.gameMode = GUESS;
-				changeGameMode();
-				break;
-			}
 
 			switch (gameObject.gameState) {
 				case INIT:
@@ -201,32 +197,33 @@ void loop() {
 							Serial.println("Waiting for user to close lid");
 						}
 					}
-					if (buttonState == 1) {
+					buttonStateMain = checkPress();
+					if (buttonStateMain == 1) {
 						Serial.println("Colour finding finished");
 						gameObject.gameState = PROCESSING;
 						break;
-					} else if (buttonState == 2) {
+					} else if (buttonStateMain == 2) {
 						gameObject.gameState = STARTUP;
 						gameObject.gameMode = GUESS;
 						changeGameMode();
 						break;
-					} else if (buttonState == 3) {
+					} else if (buttonStateMain == 3) {
 						sleep();
 					}
 					break;
 				case SCANNING:
 					waitingGlow();
-					buttonState = checkPress();
-					if (buttonState == 1) {
+					buttonStateMain = checkPress();
+					if (buttonStateMain == 1) {
 						Serial.println("Colour finding finished");
 						gameObject.gameState = PROCESSING;
 						break;
-					} else if (buttonState == 2) {
+					} else if (buttonStateMain == 2) {
 						gameObject.gameState = STARTUP;
 						gameObject.gameMode = GUESS;
 						changeGameMode();
 						break;
-					} else if (buttonState == 3) {
+					} else if (buttonStateMain == 3) {
 						sleep();
 					}
 
@@ -252,6 +249,9 @@ void loop() {
 					}
 					break;
 				case PROCESSING:
+					// Need white loading animation
+					delay(500);
+					loading();
 					String foundColours = getFoundColours();
 					Serial.println(foundColours);
 					String recommendations = whatToDraw(foundColours);
@@ -259,6 +259,7 @@ void loop() {
 					genTTS(recommendations);
 					
 					gameObject.gameState = STARTUP;
+					resetColourSensor();
 					break;
 			}
 			break;

@@ -7,9 +7,5 @@ String getColourBlindMode();
 String getSsid();
 String getPassword();
 
-String getURLs();
-
-void initialiseTime();
-void saveURL(String url);
 void loadSettings();
 bool saveSettings(String newDifficulty, String newColourBlindMode, String newSsid, String newPassword);

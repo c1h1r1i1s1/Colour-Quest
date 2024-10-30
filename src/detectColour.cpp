@@ -38,7 +38,7 @@ void scanColour(int Level0, int Level1) {
 	colourFrequencyCount = 0;
 	colourScanIndex++;
 	TSC_Filtercolour(Level0, Level1);
-	// Scan diode for 0.1 seconds
+	// Scan diode for 0.2 seconds
 	timerAlarmWrite(timer, 200000, true);
 	timerAlarmEnable(timer);
 }
@@ -67,6 +67,27 @@ void IRAM_ATTR TSC_Callback() {
 	}
 }
 
+void resetColourSensor() {
+	// Disable timer and detach the interrupt
+	timerAlarmDisable(timer);
+	timerDetachInterrupt(timer);
+	detachInterrupt(digitalPinToInterrupt(OUT));
+
+	digitalWrite(S0, LOW); // OUTPUT FREQUENCY SCALING 2%
+	digitalWrite(S1, HIGH);
+	
+	// Reattach interrupt and re-enable timer
+	attachInterrupt(digitalPinToInterrupt(OUT), TSC_Count, RISING);
+	timerAttachInterrupt(timer, &TSC_Callback, true);
+	timerAlarmEnable(timer);
+
+	// delay(1000);
+
+	// // Recalibrate if necessary
+	// initcolourScale[0] = 255.0 / rgbArray[0];
+	// initcolourScale[1] = 255.0 / rgbArray[1];
+	// initcolourScale[2] = 255.0 / rgbArray[2];
+}
 
 void setupColourSensor() {
 	pinMode(OE, OUTPUT);
@@ -150,9 +171,9 @@ std::tuple<int, int, int> getColour() {
 		b += colourArray[i][2];
 	}
 
-	r = r/4;
-	g = g/4;
-	b = b/4;
+	r = r/3;
+	g = g/3;
+	b = b/3;
 
 
 	return std::make_tuple(r, g, b);

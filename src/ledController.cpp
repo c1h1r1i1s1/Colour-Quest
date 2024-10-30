@@ -38,7 +38,6 @@ void changeGameMode() {
 }
 
 void turnOffLEDs() {
-	changeGameMode();
 	for(int i = 0; i < NUMPIXELS; i++) {
 		pixels.setPixelColor(i, pixels.Color(0, 0, 0));
 	}
@@ -140,9 +139,16 @@ uint32_t getColourBasedOnAccuracy(int accuracy) {
 
 // Display colour based on accuracy
 void displayBasedOnAccuracy(int accuracy) {
+	turnOffLEDs();
 	uint32_t colour = getColourBasedOnAccuracy(accuracy);
-	for (int i = 0; i < NUMPIXELS; i++) pixels.setPixelColor(i, colour);
-	pixels.show();
+	for (int i = 0; i < NUMPIXELS; i++) {
+		if ((i*100)/24 <= accuracy) {
+			pixels.setPixelColor(i, colour);
+			pixels.show();
+			delay(40);
+		}
+	}
+	
 }
 
 // Display dynamic colour-moving effect
@@ -154,6 +160,21 @@ void displayDynamicStandby() {
 		}
 		pixels.show();
 		delay(20); // Adjust speed
+	}
+}
+
+void loading() {
+	turnOffLEDs();
+	for (int i = 0; i < NUMPIXELS; i++) {
+		for (int j = 0; j < NUMPIXELS; j++) {
+			if (i == j) {
+				pixels.setPixelColor(j, pixels.Color(200, 200, 200));	
+			} else {
+				pixels.setPixelColor(j, pixels.Color(0, 0, 0));
+			}
+		}
+		pixels.show();
+		delay(30);
 	}
 }
 

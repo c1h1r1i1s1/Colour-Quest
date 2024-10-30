@@ -4,5 +4,6 @@
 #include "pinout.h"
 
 void setupColourSensor();
+void resetColourSensor();
 
 std::tuple<int, int, int> getColour();
