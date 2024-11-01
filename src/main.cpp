@@ -55,7 +55,6 @@ void loop() {
 
 	switch (gameObject.gameMode) {
 		case GUESS:
-
 			switch (gameObject.gameState) {
 				case INIT:
 					Serial.println("Starting guess game...");
@@ -140,11 +139,11 @@ void loop() {
 					Serial.print("Accuracy is ");
 					Serial.println(accuracy);
 
-					Serial.println("Open lid to restart game");
+					// Serial.println("Open lid to restart game");
 					unsigned long startTime = millis();
 					while (isLidClosed()) {
 						if (millis() - startTime >= 3000) {
-							gameObject.gameState = STARTUP;
+							gameObject.gameState = WAITING;
 							break;
 						}
 						buttonStateMain = checkPress();
@@ -165,12 +164,16 @@ void loop() {
 						break;
 					}
 
-					gameObject.gameState = STARTUP;
+					gameObject.gameState = WAITING;
 					break;
 			}
 			break;
 		case COLLECTION:
-
+			if (!isWifiConnected) {
+				gameObject.gameMode = GUESS;
+				error();
+				break;
+			}
 			switch (gameObject.gameState) {
 				case INIT:
 					Serial.println("Starting collection game...");

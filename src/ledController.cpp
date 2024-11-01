@@ -23,6 +23,28 @@ uint32_t Wheel(byte WheelPos) {
     }
 }
 
+void error() {
+	for(int i = 0; i < NUMPIXELS; i++) {
+		pixels.setPixelColor(i, pixels.Color(255, 0, 0));
+	}
+	pixels.show();
+	delay(200);
+	for(int i = 0; i < NUMPIXELS; i++) {
+		pixels.setPixelColor(i, pixels.Color(0, 0, 0));
+	}
+	pixels.show();
+	delay(200);
+	for(int i = 0; i < NUMPIXELS; i++) {
+		pixels.setPixelColor(i, pixels.Color(255, 0, 0));
+	}
+	pixels.show();
+	delay(200);
+	for(int i = 0; i < NUMPIXELS; i++) {
+		pixels.setPixelColor(i, pixels.Color(0, 0, 0));
+	}
+	pixels.show();
+}
+
 void changeGameMode() {
 	for (int i = 0; i < NUMPIXELS; i++) {
         pixels.clear();

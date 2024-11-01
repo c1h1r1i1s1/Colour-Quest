@@ -2,6 +2,8 @@
 #include "pinout.h"
 #include "fileAccess.h"
 
+void error();
+
 void turnOffLEDs();
 
 void loading();
