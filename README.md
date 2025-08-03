@@ -1,7 +1,7 @@
 # 🎨 Colour Quest — COMP4447 Summer 2024
 
-**University of Sydney – Interaction Design (COMP4447)**  
-[🌐 GitHub Repo](https://github.com/c1h1r1i1s1/comp4447) | [📺 Project Demo Video](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+**University of Sydney – Pervasive Computing (COMP4447)**  
+[🌐 GitHub Repo](https://github.com/c1h1r1i1s1/comp4447) | [📺 Project Demo Video](https://www.youtube.com/watch?v=G09I_hlHdmE)
 
 ![Colour Quest Device](media/Render.png)
 
@@ -63,7 +63,7 @@ Our custom-designed frog-shaped device includes:
 ## 📎 Resources
 
 - 🔗 [GitHub Repository](https://github.com/c1h1r1i1s1/comp4447)
-- 📺 [Demo Video on YouTube](https://www.youtube.com/watch?v=YOUR_VIDEO_ID) *(replace with your link)*
+- 📺 [Demo Video on YouTube](https://www.youtube.com/watch?v=G09I_hlHdmE)
 - 🖼️ Image courtesy of our 3D CAD design, showing the prototype form
 
 ---
